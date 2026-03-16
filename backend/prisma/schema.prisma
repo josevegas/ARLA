@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  CLIENT
+}
+
+enum Location {
+  TERRAZA
+  SALON
+}
+
+enum Status {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  role          Role     @default(CLIENT)
+  visitHistory  Visit[]
+  reservations  Reservation[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Visit {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime
+  createdAt DateTime @default(now())
+}
+
+model Table {
+  id         String   @id @default(cuid())
+  capacity   Int
+  location   Location
+  status     Status   @default(AVAILABLE)
+  sales      Sale[]
+  reservations Reservation[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Game {
+  id         String     @id @default(cuid())
+  name       String
+  difficulty Difficulty
+  duration   Int        // in minutes
+  stock      Int
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Sale {
+  id        String   @id @default(cuid())
+  tableId   String
+  table     Table    @relation(fields: [tableId], references: [id], onDelete: Cascade)
+  items     Json     // array of {name, price, quantity}
+  total     Float
+  date      DateTime @default(now())
+}
+
+model Reservation {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tableId     String
+  table       Table    @relation(fields: [tableId], references: [id], onDelete: Cascade)
+  date        DateTime
+  time        String   // e.g., "14:00"
+  peopleCount Int
+  prepayment  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
