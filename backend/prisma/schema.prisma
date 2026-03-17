@@ -11,6 +11,7 @@ datasource db {
 }
 
 enum Role {
+  SUPERADMIN
   ADMIN
   STAFF
   CLIENT
@@ -37,11 +38,47 @@ model User {
   id            String   @id @default(cuid())
   email         String   @unique
   password      String
+  name          String?
+  lastName      String?
+  phone         String?
+  birthday      String?  // Formato DD/MM
   role          Role     @default(CLIENT)
   visitHistory  Visit[]
+  gameHistory   GameHistory[]
   reservations  Reservation[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model GameHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id])
+  date      DateTime @default(now())
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  category    String   // e.g., "Entradas", "Platos Fuertes", "Postres", "Café", "Bebidas"
+  available   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Promotion {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  discount    Float    // percentage or fixed amount
+  expirationDate DateTime
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Visit {
@@ -64,13 +101,18 @@ model Table {
 }
 
 model Game {
-  id         String     @id @default(cuid())
-  name       String
-  difficulty Difficulty
-  duration   Int        // in minutes
-  stock      Int
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id            String        @id @default(cuid())
+  name          String
+  description   String?
+  category      String?       // e.g., "Estrategia", "Party", "Azar"
+  minPlayers    Int?
+  maxPlayers    Int?
+  difficulty    Difficulty?
+  duration      Int?          // in minutes
+  stock         Int           @default(1)
+  gameHistory   GameHistory[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model Sale {

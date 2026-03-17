@@ -27,7 +27,15 @@ export class ReservationService {
     });
   }
 
-  async updateReservation(id: string, data: Partial<typeof data>) {
+  async updateReservation(id: string, data: {
+    userId?: string;
+    tableId?: string;
+    date?: Date;
+    time?: string;
+    peopleCount?: number;
+    prepayment?: boolean;
+    status?: string;
+  }) {
     return await prisma.reservation.update({
       where: { id },
       data,

@@ -6,14 +6,27 @@ export default {
   ],
   theme: {
     extend: {
-      boxShadow: {
-        'neumorphism': '9px 9px 16px rgba(0,0,0,0.1), -9px -9px 16px rgba(255,255,255,0.7)',
-        'neumorphism-inset': 'inset 9px 9px 16px rgba(0,0,0,0.1), inset -9px -9px 16px rgba(255,255,255,0.7)',
-      },
       colors: {
-        'pastel-gray': '#f5f5f5',
-        'pastel-cream': '#fefefe',
+        'cafe-bg': '#dbcba3',
+        'cafe-surface': '#f5f2e8',
+        'forest-green': '#547a55',
+        'deep-green': '#214732',
+        'terracotta': '#b5654e',
       },
+      boxShadow: {
+        'neu-flat': '9px 9px 16px #bcae8a, -9px -9px 16px #ffffff80',
+        'neu-pressed': 'inset 6px 6px 12px #bcae8a, inset -6px -6px 12px #ffffff80',
+        'neu-sm': '4px 4px 8px #bcae8a, -4px -4px 8px #ffffff80',
+        'neu-lg': '12px 12px 24px #bcae8a, -12px -12px 24px #ffffff80',
+      },
+      borderRadius: {
+        'cafe': '2rem',
+      },
+      fontFamily: {
+        'lora': ['Lora', 'serif'],
+        'montserrat': ['Montserrat', 'sans-serif'],
+        'sans': ['Montserrat', 'sans-serif'],
+      }
     },
   },
   plugins: [],
