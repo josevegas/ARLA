@@ -5,9 +5,12 @@ import { NeumorphicButton } from '../components/NeumorphicButton';
 
 interface LoginViewProps {
   onSuccess: () => void;
+  onRegister: () => void;
 }
 
-export const LoginView: React.FC<LoginViewProps> = ({ onSuccess }) => {
+import logoArla from '../image/logo_arla.jpg';
+
+export const LoginView: React.FC<LoginViewProps> = ({ onSuccess, onRegister }) => {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,9 +31,12 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSuccess }) => {
   return (
     <div className="flex items-center justify-center min-h-[60vh] px-4">
       <NeumorphicCard className="w-full max-w-md">
-        <div className="text-center mb-10">
+        <div className="flex flex-col items-center text-center mb-10">
+          <div className="w-24 h-24 rounded-full overflow-hidden mb-6 shadow-neu-pressed p-1 bg-cafe-bg">
+            <img src={logoArla} alt="ARLA Logo" className="w-full h-full object-cover rounded-full" />
+          </div>
           <h2 className="text-4xl font-black text-deep-green tracking-tight italic">Bienvenido</h2>
-          <p className="text-forest-green font-medium mt-2">Accede a tu cuenta de ARLA</p>
+          <p className="text-forest-green font-medium mt-2">CAFÉ Y JUEGOS DE MESA</p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -67,8 +73,19 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSuccess }) => {
             Ingresar
           </NeumorphicButton>
         </form>
+
+        <div className="mt-8 pt-8 border-t border-deep-green/5 text-center">
+          <p className="text-xs font-black uppercase tracking-widest text-deep-green/50 mb-4">¿No tienes cuenta?</p>
+          <NeumorphicButton 
+            onClick={onRegister}
+            variant="flat"
+            className="w-full py-4 text-forest-green font-bold"
+          >
+            Registrarse ahora
+          </NeumorphicButton>
+        </div>
         
-        <p className="mt-10 text-center text-sm text-forest-green font-medium">
+        <p className="mt-8 text-center text-[10px] text-forest-green/40 font-bold uppercase tracking-widest">
           ¿Problemas para acceder? <br/>
           <span className="text-terracotta cursor-pointer hover:underline">Contacta a soporte</span>
         </p>

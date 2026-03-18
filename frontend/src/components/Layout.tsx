@@ -16,7 +16,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChan
       <header className="max-w-7xl mx-auto mb-12 flex flex-col lg:flex-row justify-between items-center space-y-8 lg:space-y-0 border-b border-deep-green/10 pb-8">
         <div className="cursor-pointer group text-center lg:text-left" onClick={() => onViewChange('dashboard')}>
           <h1 className="text-5xl font-black text-deep-green tracking-tighter group-hover:text-forest-green transition-colors leading-none font-lora">ARLA</h1>
-          <p className="text-[10px] uppercase tracking-[0.5em] text-forest-green font-black mt-2">Café & Ludoteca</p>
+          <p className="text-[10px] uppercase tracking-[0.5em] text-forest-green font-black mt-2">CAFÉ Y JUEGOS DE MESA</p>
         </div>
         
         <nav className="flex flex-wrap justify-center items-center gap-4">
@@ -80,13 +80,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChan
                 className={`text-xs font-bold uppercase tracking-widest ${activeView === 'login' ? 'text-forest-green' : 'text-deep-green/70'}`}
               >
                 Ingresar
-              </NeumorphicButton>
-              <NeumorphicButton 
-                variant={activeView === 'register' ? 'pressed' : 'flat'}
-                onClick={() => onViewChange('register')}
-                className={`text-xs font-bold uppercase tracking-widest ${activeView === 'register' ? 'text-forest-green' : 'text-deep-green/70'}`}
-              >
-                Registro
               </NeumorphicButton>
             </>
           )}

@@ -99,4 +99,12 @@ Consulta `AGENTS.md` para definiciones de agentes especializados en diferentes a
 - Implementado mocking de Prisma en las pruebas de reservas para permitir ejecución sin base de datos activa.
 - Actualizados scripts de build y dependencias en backend y frontend.
 - Corregidos errores de importación en `frontend/src/App.tsx` (logos no definidos).
+- Actualizada la identidad visual: se cambió el subtítulo de "Café & Ludoteca" a "CAFÉ Y JUEGOS DE MESA" en toda la aplicación.
+- Rediseñada la vista de Login: ahora incluye el logo oficial `logo_arla.jpg` y mantiene el botón de acceso directo al Registro debajo del formulario para una mejor experiencia de usuario (UX). Se ha retirado de la navegación principal para un diseño más limpio.
+- Implementados módulos de gestión administrativa: Panel central con pestañas para el Registro de Juegos (Ludoteca), Gestión de Carta (Gastronomía) y Lanzamiento de Promociones (Marketing). Ahora con soporte para **URL de imágenes**.
+- Sincronización dinámica de datos: Las vistas públicas (`Ludoteca`, `Menú`, `Promociones`) ahora consumen datos en tiempo real desde la base de datos PostgreSQL, mostrando las imágenes de cada item si están configuradas.
+- Sistema de feedback administrativo: Implementados estados de "Guardando...", "Actualizando..." y mensajes de éxito/error flash tras cada operación de registro o edición.
+- Corregidos errores críticos en procedimientos de edición: Se optimizó la limpieza de datos en el frontend (IDs en el body, limpieza de `NaN` en números) y se flexibilizaron los esquemas de validación Zod en el backend para permitir actualizaciones parciales y parámetros de ruta.
+- Configurada suite de pruebas integrales: Añadida carpeta `backend/TEST/admin.test.ts` para verificar los flujos de CRUD (Create, Read, Update, Delete) de juegos y menú, garantizando la integridad de los procedimientos de datos.
+- Integrados favicons oficiales en el frontend (soporte para navegadores, móviles y WebApp).
 - Añadido archivo `AGENTS.md` para gestión de agentes personalizados.

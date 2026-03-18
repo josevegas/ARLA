@@ -12,6 +12,8 @@ export const registerSchema = z.object({
     birthday: z.string().regex(birthdayRegex, 'Birthday must be in DD/MM format').optional(),
     role: z.enum(['SUPERADMIN', 'ADMIN', 'STAFF', 'CLIENT']).optional(),
   }),
+  params: z.any().optional(),
+  query: z.any().optional(),
 });
 
 export const loginSchema = z.object({
@@ -19,4 +21,6 @@ export const loginSchema = z.object({
     email: z.string().email('Invalid email format'),
     password: z.string(),
   }),
+  params: z.any().optional(),
+  query: z.any().optional(),
 });

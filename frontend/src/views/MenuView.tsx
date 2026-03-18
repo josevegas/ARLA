@@ -1,32 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 
 interface MenuItem {
-  id: number;
+  id: string;
   name: string;
-  description: string;
+  description: string | null;
   price: number;
-  category: 'Café' | 'Bebidas' | 'Snacks' | 'Postres';
-  image: string;
+  category: string;
+  imageUrl: string | null;
+  available: boolean;
 }
 
-const MENU_ITEMS: MenuItem[] = [
-  { id: 1, name: 'Espresso Arábica', description: 'Intenso y aromático con granos seleccionados.', price: 2.50, category: 'Café', image: '☕' },
-  { id: 2, name: 'Capuchino Vainilla', description: 'Espuma cremosa con un toque de vainilla natural.', price: 3.80, category: 'Café', image: '🥛' },
-  { id: 3, name: 'Té Matcha Latte', description: 'Té verde ceremonial con leche de almendras.', price: 4.20, category: 'Bebidas', image: '🍵' },
-  { id: 4, name: 'Muffin de Arándanos', description: 'Recién horneado con arándanos frescos.', price: 2.90, category: 'Postres', image: '🧁' },
-  { id: 5, name: 'Sandwich Gourmet', description: 'Pan artesanal, rúcula, queso brie y jamón serrano.', price: 7.50, category: 'Snacks', image: '🥪' },
-  { id: 6, name: 'Cheesecake de Frutos Rojos', description: 'Suave crema de queso con coulis de fresa.', price: 4.50, category: 'Postres', image: '🍰' },
-];
-
 export const MenuView: React.FC = () => {
+  const [items, setItems] = useState<MenuItem[]>([]);
   const [activeCategory, setActiveCategory] = useState('Todos');
-  const categories = ['Todos', 'Café', 'Bebidas', 'Snacks', 'Postres'];
+
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        const resp = await fetch('http://localhost:3000/api/admin/menu');
+        const data = await resp.json();
+        setItems(data);
+      } catch (err) {
+        console.error('Error fetching menu:', err);
+      }
+    };
+    fetchMenu();
+  }, []);
+
+  const categories = ['Todos', ...new Set(items.map(i => i.category).filter(Boolean) as string[])];
 
   const filteredItems = activeCategory === 'Todos' 
-    ? MENU_ITEMS 
-    : MENU_ITEMS.filter(item => item.category === activeCategory);
+    ? items 
+    : items.filter(item => item.category === activeCategory);
+
+  const getEmoji = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'café':
+      case 'cafe': return '☕';
+      case 'bebidas': return '🍵';
+      case 'snacks': return '🥪';
+      case 'postres': return '🍰';
+      case 'pizzas': return '🍕';
+      case 'hamburguesas': return '🍔';
+      default: return '🍽️';
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -53,9 +73,13 @@ export const MenuView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:px-10">
         {filteredItems.map(item => (
           <div key={item.id} className="group">
-            <NeumorphicCard className="flex items-center p-6 transition-all duration-500 hover:scale-[1.03] cursor-pointer border border-white/5">
-              <div className="w-28 h-28 rounded-cafe bg-cafe-bg shadow-neu-pressed flex items-center justify-center text-5xl mr-8 flex-shrink-0 group-hover:rotate-6 transition-transform duration-500">
-                {item.image}
+            <NeumorphicCard className={`flex items-center p-6 transition-all duration-500 hover:scale-[1.03] cursor-pointer border border-white/5 ${!item.available ? 'opacity-50 grayscale' : ''}`}>
+              <div className="w-28 h-28 rounded-cafe bg-cafe-bg shadow-neu-pressed flex items-center justify-center text-5xl mr-8 flex-shrink-0 group-hover:rotate-6 transition-transform duration-500 overflow-hidden">
+                {item.imageUrl ? (
+                  <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                ) : (
+                  getEmoji(item.category)
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-baseline mb-2">
@@ -64,12 +88,19 @@ export const MenuView: React.FC = () => {
                 </div>
                 <p className="text-sm text-deep-green/60 font-medium leading-relaxed line-clamp-2 italic">{item.description}</p>
                 <div className="mt-4 flex gap-2">
-                   <span className="text-[10px] font-black uppercase tracking-widest text-forest-green/40">Agregar +</span>
+                   <span className="text-[10px] font-black uppercase tracking-widest text-forest-green/40">
+                    {item.available ? 'Agregar +' : 'No disponible'}
+                   </span>
                 </div>
               </div>
             </NeumorphicCard>
           </div>
         ))}
+        {filteredItems.length === 0 && (
+          <div className="col-span-full text-center py-20">
+            <p className="text-xl font-black text-forest-green/40 italic">No hay productos disponibles en esta categoría.</p>
+          </div>
+        )}
       </div>
 
       <div className="mt-32 text-center">

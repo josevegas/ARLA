@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { NeumorphicCard } from './components/NeumorphicCard';
 import { NeumorphicButton } from './components/NeumorphicButton';
@@ -14,15 +14,48 @@ import { MenuView } from './views/MenuView';
 type ViewType = 'dashboard' | 'history' | 'admin' | 'login' | 'register' | 'profile' | 'catalog' | 'menu';
 
 const Dashboard: React.FC<{ onViewChange: (view: ViewType) => void }> = ({ onViewChange }) => {
+  const [promos, setPromos] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3000/api/admin/promotions')
+      .then(r => r.json())
+      .then(data => setPromos(data.filter((p: any) => p.active)))
+      .catch(console.error);
+  }, []);
+
   return (
     <div className="space-y-24">
       <section className="text-center py-20 relative">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-forest-green/5 rounded-full blur-3xl -z-10"></div>
-        <h2 className="text-8xl font-black text-deep-green mb-8 tracking-tighter leading-none font-lora">ARLA</h2>
-        <p className="text-2xl text-forest-green max-w-2xl mx-auto font-medium leading-relaxed italic">
-          "Donde la estrategia se encuentra con el aroma del mejor café."
+        <h2 className="text-8xl font-black text-deep-green mb-4 tracking-tighter leading-none font-lora">ARLA</h2>
+        <p className="text-2xl text-forest-green max-w-2xl mx-auto font-black italic tracking-widest uppercase">
+          CAFÉ Y JUEGOS DE MESA
         </p>
       </section>
+
+      {promos.length > 0 && (
+        <section className="space-y-8">
+          <div className="text-center">
+            <h3 className="text-3xl font-black text-deep-green font-lora">Promociones Imperdibles</h3>
+            <p className="text-forest-green text-sm font-bold uppercase tracking-widest mt-2">Solo por tiempo limitado</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {promos.map(promo => (
+              <NeumorphicCard key={promo.id} className="p-8 border-t-8 border-terracotta relative overflow-hidden group">
+                 <div className="absolute -top-4 -right-4 w-24 h-24 bg-terracotta/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
+                 <h4 className="text-xl font-black text-deep-green mb-2 font-lora">{promo.title}</h4>
+                 <p className="text-sm text-deep-green/60 mb-6 italic">{promo.description}</p>
+                 <div className="flex justify-between items-center">
+                   <span className="text-4xl font-black text-terracotta">-{promo.discount}%</span>
+                   <NeumorphicButton variant="flat" className="text-[10px] font-black uppercase tracking-widest px-6" onClick={() => onViewChange('menu')}>
+                     Ver Menú
+                   </NeumorphicButton>
+                 </div>
+              </NeumorphicCard>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
         {[
@@ -75,12 +108,12 @@ const AppContent: React.FC = () => {
   return (
     <Layout activeView={activeView} onViewChange={setActiveView}>
       {activeView === 'dashboard' && <Dashboard onViewChange={setActiveView} />}
-      {activeView === 'login' && <LoginView onSuccess={() => setActiveView('profile')} />}
+      {activeView === 'login' && <LoginView onSuccess={() => setActiveView('profile')} onRegister={() => setActiveView('register')} />}
       {activeView === 'register' && <RegisterView onSuccess={() => setActiveView('profile')} />}
-      {activeView === 'profile' && (user ? <ProfileView /> : <LoginView onSuccess={() => setActiveView('profile')} />)}
+      {activeView === 'profile' && (user ? <ProfileView /> : <LoginView onSuccess={() => setActiveView('profile')} onRegister={() => setActiveView('register')} />)}
       {activeView === 'catalog' && <GameCatalogView />}
       {activeView === 'menu' && <MenuView />}
-      {activeView === 'history' && (user ? <UserHistoryView /> : <LoginView onSuccess={() => setActiveView('dashboard')} />)}
+      {activeView === 'history' && (user ? <UserHistoryView /> : <LoginView onSuccess={() => setActiveView('dashboard')} onRegister={() => setActiveView('register')} />)}
       {activeView === 'admin' && (user?.role === 'ADMIN' || user?.role === 'SUPERADMIN' ? <AdminManagementView /> : <Dashboard onViewChange={setActiveView} />)}
     </Layout>
   );

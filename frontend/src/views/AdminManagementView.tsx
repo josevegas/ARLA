@@ -1,30 +1,43 @@
-import React from 'react';
-import { NeumorphicCard } from '../components/NeumorphicCard';
+import React, { useState } from 'react';
 import { NeumorphicButton } from '../components/NeumorphicButton';
+import { GameManagement } from './GameManagement';
+import { MenuManagement } from './MenuManagement';
+import { PromotionsManagement } from './PromotionsManagement';
 
 export const AdminManagementView: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'juegos' | 'menu' | 'promos'>('juegos');
+
   return (
-    <div className="space-y-8">
-      <h2 className="text-2xl font-bold text-gray-700">Panel de Administración</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <NeumorphicCard className="space-y-4">
-          <h3 className="font-semibold text-gray-600">Gestión de Juegos</h3>
-          <p className="text-sm text-gray-500">Añade o edita juegos de la ludoteca.</p>
-          <NeumorphicButton className="w-full text-sm">Nuevo Juego</NeumorphicButton>
-        </NeumorphicCard>
+    <div className="container mx-auto px-4 py-12">
+      <div className="text-center mb-16">
+        <h1 className="text-6xl font-black text-deep-green tracking-tighter mb-4 font-lora">Gestión ARLA</h1>
+        <p className="text-forest-green font-black uppercase tracking-[0.4em] text-xs">Panel Administrativo Central</p>
+      </div>
 
-        <NeumorphicCard className="space-y-4">
-          <h3 className="font-semibold text-gray-600">Gestión del Menú</h3>
-          <p className="text-sm text-gray-500">Actualiza platos, bebidas y precios.</p>
-          <NeumorphicButton className="w-full text-sm">Editar Ítem</NeumorphicButton>
-        </NeumorphicCard>
+      <div className="flex justify-center flex-wrap gap-4 mb-16">
+        {[
+          { id: 'juegos', label: 'Ludoteca', icon: '🎲' },
+          { id: 'menu', label: 'Gastronomía', icon: '☕' },
+          { id: 'promos', label: 'Marketing', icon: '🏷️' },
+        ].map(tab => (
+          <NeumorphicButton 
+            key={tab.id}
+            variant={activeTab === tab.id ? 'pressed' : 'flat'}
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`px-12 py-4 rounded-full text-sm font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-3 ${
+              activeTab === tab.id ? 'text-forest-green' : 'text-deep-green/50 opacity-70 grayscale'
+            }`}
+          >
+            <span className="text-xl">{tab.icon}</span>
+            {tab.label}
+          </NeumorphicButton>
+        ))}
+      </div>
 
-        <NeumorphicCard className="space-y-4">
-          <h3 className="font-semibold text-gray-600">Promociones</h3>
-          <p className="text-sm text-gray-500">Crea ofertas para tus clientes.</p>
-          <NeumorphicButton className="w-full text-sm">Crear Promo</NeumorphicButton>
-        </NeumorphicCard>
+      <div className="max-w-6xl mx-auto transition-all duration-500">
+        {activeTab === 'juegos' && <GameManagement />}
+        {activeTab === 'menu' && <MenuManagement />}
+        {activeTab === 'promos' && <PromotionsManagement />}
       </div>
     </div>
   );
