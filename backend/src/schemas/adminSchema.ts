@@ -17,11 +17,11 @@ export const gameSchema = z.object({
   body: z.object({
     name: z.string().min(2),
     description: z.string().nullish(),
-    category: z.string().nullish(),
+    categoryIds: z.array(z.string()).optional(),
     imageUrl: z.string().nullish(),
     minPlayers: z.coerce.number().int().positive().nullish(),
     maxPlayers: z.coerce.number().int().positive().nullish(),
-    difficulty: z.enum(['EASY', 'MEDIUM', 'HARD']).nullish(),
+    difficultyId: z.string().nullish(),
     duration: z.coerce.number().int().positive().nullish(),
     stock: z.coerce.number().int().nonnegative().optional(),
   }).passthrough(),

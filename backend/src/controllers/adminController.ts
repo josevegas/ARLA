@@ -114,3 +114,21 @@ export const deleteGame = async (req: Request, res: Response) => {
   }
 };
 
+export const getCategories = async (_req: Request, res: Response) => {
+  try {
+    const categories = await adminService.getCategories();
+    res.json(categories);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getDifficulties = async (_req: Request, res: Response) => {
+  try {
+    const difficulties = await adminService.getDifficulties();
+    res.json(difficulties);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

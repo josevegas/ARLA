@@ -33,7 +33,8 @@ describe('Admin CRUD Procedures', () => {
       .send({
         name: 'Updated Game',
         description: 'New Description',
-        category: 'Strategy',
+        categoryIds: ['cat1'],
+        difficultyId: 'diff1',
         stock: 5
       });
     

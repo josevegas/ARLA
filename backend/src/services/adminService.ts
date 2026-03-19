@@ -33,15 +33,47 @@ export class AdminService {
 
   // Games
   async createGame(data: any) {
-    return await prisma.game.create({ data });
+    const { categoryIds, ...gameData } = data;
+    return await prisma.game.create({
+      data: {
+        ...gameData,
+        categories: categoryIds && categoryIds.length > 0 ? {
+          connect: categoryIds.map((id: string) => ({ id }))
+        } : undefined
+      },
+      include: { categories: true, difficulty: true }
+    });
   }
+
   async getGames() {
-    return await prisma.game.findMany();
+    return await prisma.game.findMany({
+      include: { categories: true, difficulty: true }
+    });
   }
+
   async updateGame(id: string, data: any) {
-    return await prisma.game.update({ where: { id }, data });
+    const { categoryIds, ...gameData } = data;
+    return await prisma.game.update({
+      where: { id },
+      data: {
+        ...gameData,
+        categories: categoryIds ? {
+          set: categoryIds.map((id: string) => ({ id }))
+        } : { set: [] }
+      },
+      include: { categories: true, difficulty: true }
+    });
   }
+
   async deleteGame(id: string) {
     return await prisma.game.delete({ where: { id } });
+  }
+
+  async getCategories() {
+    return await prisma.category.findMany({ orderBy: { name: 'asc' } });
+  }
+
+  async getDifficulties() {
+    return await prisma.difficulty.findMany({ orderBy: { createdAt: 'asc' } });
   }
 }

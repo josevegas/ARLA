@@ -56,7 +56,7 @@ ARLA/
 
 - **User**: Roles (Admin, Staff, Cliente), credenciales, historial de visitas. Perfil extendido: nombres, apellidos, celular, y cumpleaños (DD/MM).
 - **Table**: Capacidad, ubicación (Terraza/Salón), estado (Disponible, Ocupado, Reservado).
-- **Game (Ludoteca)**: Catálogo de juegos con categoría, dificultad, duración, stock y rango de jugadores.
+- **Game (Ludoteca)**: Catálogo de juegos con múltiples categorías por juego, dificultad basada en catálogo (Fácil, Medio, Difícil), duración, stock y rango de jugadores.
 - **MenuItem (Gastronomía)**: Platos y bebidas con categorías, precios y disponibilidad.
 - **Promotion (Marketing)**: Título, descuento, fecha de expiración y estado activo.
 - **Sale**: Registro de ventas vinculadas a mesas.
@@ -108,3 +108,5 @@ Consulta `AGENTS.md` para definiciones de agentes especializados en diferentes a
 - Configurada suite de pruebas integrales: Añadida carpeta `backend/TEST/admin.test.ts` para verificar los flujos de CRUD (Create, Read, Update, Delete) de juegos y menú, garantizando la integridad de los procedimientos de datos.
 - Integrados favicons oficiales en el frontend (soporte para navegadores, móviles y WebApp).
 - Añadido archivo `AGENTS.md` para gestión de agentes personalizados.
+- **Refactorizada la gestión de juegos**: implementación de tablas separadas para Dificultad y Categorías, permitiendo múltiples categorías por cada juego y una lista preestablecida de 23 categorías estándar.
+- **Actualizada la interfaz administrativa**: soporte para selección múltiple de categorías y asignación dinámica de niveles de dificultad dinámicos.

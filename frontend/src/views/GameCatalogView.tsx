@@ -2,15 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface DifficultyLevel {
+  id: string;
+  name: string;
+}
+
 interface Game {
   id: string;
   name: string;
   description: string | null;
-  category: string | null;
+  categories: Category[];
   imageUrl: string | null;
   minPlayers: number | null;
   maxPlayers: number | null;
-  difficulty: 'EASY' | 'MEDIUM' | 'HARD' | null;
+  difficulty: DifficultyLevel | null;
   duration: number | null;
   stock: number;
 }
@@ -32,29 +42,11 @@ export const GameCatalogView: React.FC = () => {
     fetchGames();
   }, []);
 
-  const categories = ['Todos', ...new Set(games.map(g => g.category).filter(Boolean) as string[])];
+  const categories = ['Todos', ...new Set(games.flatMap(g => g.categories.map(c => c.name)).filter(Boolean) as string[])].sort((a, b) => a === 'Todos' ? -1 : b === 'Todos' ? 1 : a.localeCompare(b));
 
   const filteredGames = filter === 'Todos' 
     ? games 
-    : games.filter(g => g.category === filter);
-
-  const getDifficultyLabel = (diff: string | null) => {
-    switch (diff) {
-      case 'EASY': return 'Fácil';
-      case 'MEDIUM': return 'Media';
-      case 'HARD': return 'Difícil';
-      default: return 'N/A';
-    }
-  };
-
-  const getDifficultyColor = (diff: string | null) => {
-    switch (diff) {
-      case 'EASY': return 'text-green-700 bg-green-100/50';
-      case 'MEDIUM': return 'text-yellow-700 bg-yellow-100/50';
-      case 'HARD': return 'text-red-700 bg-red-100/50';
-      default: return 'text-gray-700 bg-gray-100/50';
-    }
-  };
+    : games.filter(g => g.categories.some(c => c.name === filter));
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -90,13 +82,19 @@ export const GameCatalogView: React.FC = () => {
               )}
             </div>
             
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-[10px] font-black text-forest-green bg-forest-green/10 px-3 py-1 rounded-full uppercase tracking-widest">
-                {game.category}
-              </span>
-              <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${getDifficultyColor(game.difficulty)}`}>
-                {getDifficultyLabel(game.difficulty)}
-              </span>
+            <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1">
+                {game.categories.map(cat => (
+                  <span key={cat.id} className="text-[9px] font-black text-forest-green bg-forest-green/10 px-2 py-0.5 rounded-full uppercase tracking-widest">
+                    {cat.name}
+                  </span>
+                ))}
+              </div>
+              {game.difficulty && (
+                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest text-coffee-bean bg-coffee-bean/5`}>
+                  {game.difficulty.name}
+                </span>
+              )}
             </div>
             
             <h3 className="text-3xl font-black text-deep-green mb-4 leading-tight font-lora">{game.name}</h3>
@@ -112,7 +110,7 @@ export const GameCatalogView: React.FC = () => {
               </div>
             </div>
             
-            <NeumorphicButton className="w-full py-4 text-sm font-black uppercase tracking-widest bg-forest-green text-cafe-surface border-none shadow-neu-flat">
+            <NeumorphicButton className="w-full py-4 text-sm font-black uppercase tracking-widest bg-forest-green text-white border-none shadow-neu-flat">
               Reservar Mesa & Juego
             </NeumorphicButton>
           </NeumorphicCard>

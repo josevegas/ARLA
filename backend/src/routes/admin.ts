@@ -2,7 +2,8 @@ import { Router } from 'express';
 import { 
   createMenuItem, getMenuItems, updateMenuItem, deleteMenuItem,
   createPromotion, getPromotions, updatePromotion, deletePromotion,
-  createGame, getGames, updateGame, deleteGame
+  createGame, getGames, updateGame, deleteGame,
+  getCategories, getDifficulties
 } from '../controllers/adminController';
 import { auth, authorize } from '../middlewares/auth';
 import { validate } from '../middlewares/validation';
@@ -16,6 +17,8 @@ const router = Router();
 router.get('/menu', getMenuItems);
 router.get('/promotions', getPromotions);
 router.get('/games', getGames);
+router.get('/game-categories', getCategories);
+router.get('/game-difficulties', getDifficulties);
 
 // Protect write routes
 router.use(auth);

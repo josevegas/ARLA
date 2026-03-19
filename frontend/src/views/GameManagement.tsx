@@ -3,15 +3,26 @@ import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 import { useAuth } from '../context/AuthContext';
 
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface DifficultyLevel {
+  id: string;
+  name: string;
+}
+
 interface Game {
   id: string;
   name: string;
   description: string | null;
-  category: string | null;
+  categories: Category[];
   imageUrl: string | null;
   minPlayers: number | null;
   maxPlayers: number | null;
-  difficulty: 'EASY' | 'MEDIUM' | 'HARD' | null;
+  difficulty: DifficultyLevel | null;
+  difficultyId: string | null;
   duration: number | null;
   stock: number;
 }
@@ -19,15 +30,18 @@ interface Game {
 export const GameManagement: React.FC = () => {
   const { token } = useAuth();
   const [games, setGames] = useState<Game[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [difficulties, setDifficulties] = useState<DifficultyLevel[]>([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  
   const [activeGame, setActiveGame] = useState<Partial<Game>>({
     name: '',
     description: '',
-    category: '',
     imageUrl: '',
     minPlayers: 1,
     maxPlayers: 4,
-    difficulty: 'MEDIUM',
+    difficultyId: '',
     duration: 30,
     stock: 1
   });
@@ -42,8 +56,32 @@ export const GameManagement: React.FC = () => {
     }
   };
 
+  const fetchMetadata = async () => {
+    try {
+      const [catResp, diffResp] = await Promise.all([
+        fetch('http://localhost:3000/api/admin/game-categories'),
+        fetch('http://localhost:3000/api/admin/game-difficulties')
+      ]);
+      const catData = await catResp.json();
+      const diffData = await diffResp.json();
+      
+      const safeCategories = Array.isArray(catData) ? catData : [];
+      const safeDifficulties = Array.isArray(diffData) ? diffData : [];
+      
+      setCategories(safeCategories);
+      setDifficulties(safeDifficulties);
+      
+      if (safeDifficulties.length > 0 && !activeGame.difficultyId) {
+        setActiveGame(prev => ({ ...prev, difficultyId: safeDifficulties[0].id }));
+      }
+    } catch (err) {
+      console.error('Error fetching metadata:', err);
+    }
+  };
+
   useEffect(() => {
     fetchGames();
+    fetchMetadata();
   }, []);
 
   const [status, setStatus] = useState<'idle' | 'creating' | 'updating' | 'success' | 'error'>('idle');
@@ -56,9 +94,9 @@ export const GameManagement: React.FC = () => {
     const dataToSave: any = {
       name: activeGame.name,
       description: activeGame.description || null,
-      category: activeGame.category || null,
+      categoryIds: selectedCategoryIds,
       imageUrl: activeGame.imageUrl || null,
-      difficulty: activeGame.difficulty || 'MEDIUM',
+      difficultyId: activeGame.difficultyId || null,
       stock: Number(activeGame.stock) || 0,
     };
 
@@ -85,7 +123,8 @@ export const GameManagement: React.FC = () => {
       if (resp.ok) {
         await fetchGames();
         setIsEditing(false);
-        setActiveGame({ name: '', description: '', category: '', imageUrl: '', minPlayers: 1, maxPlayers: 4, difficulty: 'MEDIUM', duration: 30, stock: 1 });
+        setActiveGame({ name: '', description: '', imageUrl: '', minPlayers: 1, maxPlayers: 4, difficultyId: difficulties[0]?.id || '', duration: 30, stock: 1 });
+        setSelectedCategoryIds([]);
         setStatus('success');
         setTimeout(() => setStatus('idle'), 3000);
       } else {
@@ -105,9 +144,10 @@ export const GameManagement: React.FC = () => {
     setActiveGame({
       ...game,
       description: game.description || '',
-      category: game.category || '',
       imageUrl: game.imageUrl || '',
+      difficultyId: game.difficultyId || '',
     });
+    setSelectedCategoryIds(game.categories?.map(c => c.id) || []);
     setIsEditing(true);
   };
 
@@ -160,24 +200,45 @@ export const GameManagement: React.FC = () => {
             />
           </div>
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-deep-green/50 mb-2 ml-4">Categoría</label>
-            <input 
-              className={inputStyles}
-              value={activeGame.category || ''}
-              onChange={e => setActiveGame({...activeGame, category: e.target.value})}
-            />
-          </div>
-          <div>
             <label className="block text-[10px] font-black uppercase tracking-widest text-deep-green/50 mb-2 ml-4">Dificultad</label>
             <select 
               className={inputStyles}
-              value={activeGame.difficulty || 'MEDIUM'}
-              onChange={e => setActiveGame({...activeGame, difficulty: e.target.value as any})}
+              value={activeGame.difficultyId || ''}
+              onChange={e => setActiveGame({...activeGame, difficultyId: e.target.value})}
             >
-              <option value="EASY">Fácil</option>
-              <option value="MEDIUM">Medio</option>
-              <option value="HARD">Difícil</option>
+              <option value="" disabled>Seleccionar dificultad</option>
+              {difficulties.map(diff => (
+                <option key={diff.id} value={diff.id}>{diff.name}</option>
+              ))}
             </select>
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-deep-green/50 mb-3 ml-4">Categorías (Puedes seleccionar varias)</label>
+            <div className="flex flex-wrap gap-2 p-4 rounded-cafe bg-cafe-bg shadow-neu-pressed">
+              {categories.map(cat => {
+                const isSelected = selectedCategoryIds.includes(cat.id);
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        setSelectedCategoryIds(prev => prev.filter(id => id !== cat.id));
+                      } else {
+                        setSelectedCategoryIds(prev => [...prev, cat.id]);
+                      }
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
+                      isSelected 
+                        ? 'bg-forest-green text-white shadow-neu-flat' 
+                        : 'text-deep-green/40 hover:text-deep-green'
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -234,7 +295,8 @@ export const GameManagement: React.FC = () => {
                   variant="flat"
                   onClick={() => {
                     setIsEditing(false);
-                    setActiveGame({ name: '', description: '', category: '', imageUrl: '', minPlayers: 1, maxPlayers: 4, difficulty: 'MEDIUM', duration: 30, stock: 1 });
+                    setActiveGame({ name: '', description: '', imageUrl: '', minPlayers: 1, maxPlayers: 4, difficultyId: difficulties[0]?.id || '', duration: 30, stock: 1 });
+                    setSelectedCategoryIds([]);
                   }}
                   className="px-8 text-terracotta font-black uppercase tracking-widest"
                 >
@@ -259,11 +321,20 @@ export const GameManagement: React.FC = () => {
                 ) : '🎲'}
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
                   <h4 className="text-xl font-black text-deep-green font-lora">{game.name}</h4>
-                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-forest-green/10 text-forest-green">
-                    {game.category}
-                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {game.categories?.map(cat => (
+                      <span key={cat.id} className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-forest-green/10 text-forest-green">
+                        {cat.name}
+                      </span>
+                    ))}
+                    {game.difficulty && (
+                      <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-coffee-bean/10 text-coffee-bean">
+                        {game.difficulty.name}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-sm text-deep-green/60 italic line-clamp-1">{game.description}</p>
                 <div className="flex gap-4 mt-3">

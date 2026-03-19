@@ -28,11 +28,6 @@ enum Status {
   RESERVED
 }
 
-enum Difficulty {
-  EASY
-  MEDIUM
-  HARD
-}
 
 model User {
   id            String   @id @default(cuid())
@@ -102,15 +97,32 @@ model Table {
   updatedAt  DateTime @updatedAt
 }
 
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  games     Game[]   @relation("GameCategories")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Difficulty {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  games     Game[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Game {
   id            String        @id @default(cuid())
   name          String
   description   String?
-  category      String?       // e.g., "Estrategia", "Party", "Azar"
+  categories    Category[]    @relation("GameCategories")
   imageUrl      String?
   minPlayers    Int?
   maxPlayers    Int?
-  difficulty    Difficulty?
+  difficultyId  String?
+  difficulty    Difficulty?    @relation(fields: [difficultyId], references: [id])
   duration      Int?          // in minutes
   stock         Int           @default(1)
   gameHistory   GameHistory[]
