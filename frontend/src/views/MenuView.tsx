@@ -15,6 +15,9 @@ interface MenuItem {
 export const MenuView: React.FC = () => {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [activeCategory, setActiveCategory] = useState('Todos');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -31,9 +34,26 @@ export const MenuView: React.FC = () => {
 
   const categories = ['Todos', ...new Set(items.map(i => i.category).filter(Boolean) as string[])];
 
-  const filteredItems = activeCategory === 'Todos' 
-    ? items 
-    : items.filter(item => item.category === activeCategory);
+  let filteredItems = items;
+  if (activeCategory !== 'Todos') {
+    filteredItems = filteredItems.filter(item => item.category === activeCategory);
+  }
+  if (searchTerm.trim() !== '') {
+    const lowerSearch = searchTerm.toLowerCase();
+    filteredItems = filteredItems.filter(item => 
+      item.name.toLowerCase().includes(lowerSearch) || 
+      (item.description && item.description.toLowerCase().includes(lowerSearch))
+    );
+  }
+
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, searchTerm]);
 
   const getEmoji = (category: string) => {
     switch (category.toLowerCase()) {
@@ -50,28 +70,39 @@ export const MenuView: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="text-center mb-20">
+      <div className="text-center mb-12">
         <h1 className="text-6xl font-black text-deep-green tracking-tighter mb-4 font-lora">Carta Gastronómica</h1>
         <p className="text-lg text-forest-green max-w-2xl mx-auto font-medium">
           Sabores diseñados para acompañar tus partidas y hacer cada momento especial.
         </p>
       </div>
 
-      <div className="flex justify-center flex-wrap gap-4 mb-20">
-        {categories.map(cat => (
-          <NeumorphicButton 
-            key={cat}
-            variant={activeCategory === cat ? 'pressed' : 'flat'}
-            onClick={() => setActiveCategory(cat)}
-            className={`px-10 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-colors ${activeCategory === cat ? 'text-forest-green' : 'text-deep-green/50'}`}
-          >
-            {cat}
-          </NeumorphicButton>
-        ))}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 bg-cafe-surface p-6 rounded-3xl shadow-neu-flat">
+        <div className="flex flex-wrap gap-3 flex-1">
+          {categories.map(cat => (
+            <NeumorphicButton 
+              key={cat}
+              variant={activeCategory === cat ? 'pressed' : 'flat'}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${activeCategory === cat ? 'text-forest-green' : 'text-deep-green/50'}`}
+            >
+              {cat}
+            </NeumorphicButton>
+          ))}
+        </div>
+        <div className="w-full md:w-80">
+          <input
+            type="text"
+            placeholder="Buscar producto..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-cafe-bg text-deep-green px-6 py-3 rounded-full shadow-neu-pressed focus:outline-none focus:ring-2 focus:ring-forest-green/20 placeholder-deep-green/30 font-medium"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:px-10">
-        {filteredItems.map(item => (
+        {paginatedItems.map(item => (
           <div key={item.id} className="group">
             <NeumorphicCard className={`flex items-center p-6 transition-all duration-500 hover:scale-[1.03] cursor-pointer border border-white/5 ${!item.available ? 'opacity-50 grayscale' : ''}`}>
               <div className="w-28 h-28 rounded-cafe bg-cafe-bg shadow-neu-pressed flex items-center justify-center text-5xl mr-8 flex-shrink-0 group-hover:rotate-6 transition-transform duration-500 overflow-hidden">
@@ -96,12 +127,34 @@ export const MenuView: React.FC = () => {
             </NeumorphicCard>
           </div>
         ))}
-        {filteredItems.length === 0 && (
+        {paginatedItems.length === 0 && (
           <div className="col-span-full text-center py-20">
-            <p className="text-xl font-black text-forest-green/40 italic">No hay productos disponibles en esta categoría.</p>
+            <p className="text-xl font-black text-forest-green/40 italic">No hay productos que coincidan con la búsqueda.</p>
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center mt-16 gap-4">
+          <NeumorphicButton
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            &lt; Anterior
+          </NeumorphicButton>
+          <span className="text-deep-green font-bold mx-4">
+            Página {currentPage} de {totalPages}
+          </span>
+          <NeumorphicButton
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            Siguiente &gt;
+          </NeumorphicButton>
+        </div>
+      )}
 
       <div className="mt-32 text-center">
         <NeumorphicCard className="inline-block py-12 px-16 max-w-3xl relative overflow-hidden">

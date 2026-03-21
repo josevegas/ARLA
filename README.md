@@ -110,3 +110,4 @@ Consulta `AGENTS.md` para definiciones de agentes especializados en diferentes a
 - Añadido archivo `AGENTS.md` para gestión de agentes personalizados.
 - **Refactorizada la gestión de juegos**: implementación de tablas separadas para Dificultad y Categorías, permitiendo múltiples categorías por cada juego y una lista preestablecida de 23 categorías estándar.
 - **Actualizada la interfaz administrativa**: soporte para selección múltiple de categorías y asignación dinámica de niveles de dificultad dinámicos.
+- **Mejorada la experiencia de usuario (UX) en catálogos**: implementada paginación en el catálogo de juegos y la carta gastronómica. Se añadieron barras de búsqueda por nombre y descripciones, y, en el catálogo de juegos, los filtros de categorías y dificultad ahora utilizan componentes de selección múltiple con capacidad de búsqueda, optimizando la exploración del contenido.
