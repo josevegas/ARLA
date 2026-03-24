@@ -4,6 +4,9 @@ export declare class AuthService {
         email: string;
         password: string;
         name: string | null;
+        lastName: string | null;
+        phone: string | null;
+        birthday: string | null;
         role: import(".prisma/client").$Enums.Role;
         createdAt: Date;
         updatedAt: Date;
@@ -14,6 +17,9 @@ export declare class AuthService {
             email: string;
             password: string;
             name: string | null;
+            lastName: string | null;
+            phone: string | null;
+            birthday: string | null;
             role: import(".prisma/client").$Enums.Role;
             createdAt: Date;
             updatedAt: Date;
@@ -33,9 +39,13 @@ export declare class AuthService {
                 name: string;
                 createdAt: Date;
                 updatedAt: Date;
-                difficulty: import(".prisma/client").$Enums.Difficulty;
-                duration: number;
+                description: string | null;
+                imageUrl: string | null;
+                minPlayers: number | null;
+                maxPlayers: number | null;
+                duration: number | null;
                 stock: number;
+                difficultyId: string | null;
             };
         } & {
             id: string;
@@ -48,6 +58,9 @@ export declare class AuthService {
         email: string;
         password: string;
         name: string | null;
+        lastName: string | null;
+        phone: string | null;
+        birthday: string | null;
         role: import(".prisma/client").$Enums.Role;
         createdAt: Date;
         updatedAt: Date;

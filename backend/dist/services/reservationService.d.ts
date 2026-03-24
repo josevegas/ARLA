@@ -6,7 +6,23 @@ export declare class ReservationService {
         time: string;
         peopleCount: number;
         prepayment?: boolean;
+        shareTable?: boolean;
+        gameIds?: string[];
     }): Promise<{
+        games: {
+            id: string;
+            name: string;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string | null;
+            imageUrl: string | null;
+            minPlayers: number | null;
+            maxPlayers: number | null;
+            duration: number | null;
+            stock: number;
+            difficultyId: string | null;
+        }[];
+    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -14,15 +30,32 @@ export declare class ReservationService {
         time: string;
         peopleCount: number;
         prepayment: boolean;
+        shareTable: boolean;
         userId: string | null;
         tableId: string;
     }>;
+    findAvailableTable(data: {
+        date: Date;
+        time: string;
+        peopleCount: number;
+        shareTable: boolean;
+    }): Promise<{
+        tableId: string;
+        capacity: number;
+        remainingCapacity: number;
+        joiningExisting: boolean;
+        existingGames: string[];
+        existingUsers: (string | null | undefined)[];
+    } | null>;
     getReservations(): Promise<({
         user: {
             id: string;
             email: string;
             password: string;
             name: string | null;
+            lastName: string | null;
+            phone: string | null;
+            birthday: string | null;
             role: import(".prisma/client").$Enums.Role;
             createdAt: Date;
             updatedAt: Date;
@@ -32,8 +65,8 @@ export declare class ReservationService {
             createdAt: Date;
             updatedAt: Date;
             status: import(".prisma/client").$Enums.Status;
+            description: string;
             capacity: number;
-            location: import(".prisma/client").$Enums.Location;
         };
     } & {
         id: string;
@@ -43,6 +76,7 @@ export declare class ReservationService {
         time: string;
         peopleCount: number;
         prepayment: boolean;
+        shareTable: boolean;
         userId: string | null;
         tableId: string;
     })[]>;
@@ -52,6 +86,9 @@ export declare class ReservationService {
             email: string;
             password: string;
             name: string | null;
+            lastName: string | null;
+            phone: string | null;
+            birthday: string | null;
             role: import(".prisma/client").$Enums.Role;
             createdAt: Date;
             updatedAt: Date;
@@ -61,8 +98,8 @@ export declare class ReservationService {
             createdAt: Date;
             updatedAt: Date;
             status: import(".prisma/client").$Enums.Status;
+            description: string;
             capacity: number;
-            location: import(".prisma/client").$Enums.Location;
         };
     } & {
         id: string;
@@ -72,6 +109,7 @@ export declare class ReservationService {
         time: string;
         peopleCount: number;
         prepayment: boolean;
+        shareTable: boolean;
         userId: string | null;
         tableId: string;
     }) | null>;
@@ -91,6 +129,7 @@ export declare class ReservationService {
         time: string;
         peopleCount: number;
         prepayment: boolean;
+        shareTable: boolean;
         userId: string | null;
         tableId: string;
     }>;
@@ -102,6 +141,7 @@ export declare class ReservationService {
         time: string;
         peopleCount: number;
         prepayment: boolean;
+        shareTable: boolean;
         userId: string | null;
         tableId: string;
     }>;

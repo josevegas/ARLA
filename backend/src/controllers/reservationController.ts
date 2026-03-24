@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ReservationService } from '../services/reservationService';
+import { AuthRequest } from '../middlewares/auth';
 
 const reservationService = new ReservationService();
 
@@ -10,6 +11,28 @@ export const createReservation = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(`[createReservation]: ${error}`);
     return res.status(500).json({ message: 'Internal server error while creating reservation' });
+  }
+};
+
+export const findAvailableTables = async (req: Request, res: Response) => {
+  try {
+    const tables = await reservationService.findAvailableTables(req.body);
+    return res.json(tables);
+  } catch (error) {
+    console.error(`[findAvailableTables]: ${error}`);
+    return res.status(500).json({ message: 'Internal server error while searching for tables' });
+  }
+};
+
+export const getActiveReservation = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.params.userId || req.user?.id;
+    if (!userId) return res.status(400).json({ message: 'User ID required' });
+    const reservation = await reservationService.getActiveReservationForUser(userId);
+    return res.json(reservation);
+  } catch (error) {
+    console.error(`[getActiveReservation]: ${error}`);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 

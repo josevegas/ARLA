@@ -14,16 +14,16 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChan
   return (
     <div className="min-h-screen bg-cafe-bg text-deep-green font-sans p-4 md:p-8 transition-colors duration-500">
       <header className="max-w-7xl mx-auto mb-12 flex flex-col lg:flex-row justify-between items-center space-y-8 lg:space-y-0 border-b border-deep-green/10 pb-8">
-        <div className="cursor-pointer group text-center lg:text-left" onClick={() => onViewChange('dashboard')}>
+        <div className="cursor-pointer group text-center lg:text-left" onClick={() => onViewChange('home')}>
           <h1 className="text-5xl font-black text-deep-green tracking-tighter group-hover:text-forest-green transition-colors leading-none font-lora">ARLA</h1>
           <p className="text-[10px] uppercase tracking-[0.5em] text-forest-green font-black mt-2">CAFÉ Y JUEGOS DE MESA</p>
         </div>
         
         <nav className="flex flex-wrap justify-center items-center gap-4">
           <NeumorphicButton 
-            variant={activeView === 'dashboard' ? 'pressed' : 'flat'}
-            onClick={() => onViewChange('dashboard')}
-            className={`text-xs font-bold uppercase tracking-widest ${activeView === 'dashboard' ? 'text-forest-green' : 'text-deep-green/70'}`}
+            variant={activeView === 'home' ? 'pressed' : 'flat'}
+            onClick={() => onViewChange('home')}
+            className={`text-xs font-bold uppercase tracking-widest ${activeView === 'home' ? 'text-forest-green' : 'text-deep-green/70'}`}
           >
             Inicio
           </NeumorphicButton>

@@ -34,6 +34,11 @@ export const GameManagement: React.FC = () => {
   const [difficulties, setDifficulties] = useState<DifficultyLevel[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+
+  // Search & Pagination States
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
   
   const [activeGame, setActiveGame] = useState<Partial<Game>>({
     name: '',
@@ -165,6 +170,20 @@ export const GameManagement: React.FC = () => {
   };
 
   const inputStyles = "w-full px-4 py-3 rounded-cafe bg-cafe-bg shadow-neu-pressed border-none focus:ring-2 focus:ring-forest-green/30 outline-none text-deep-green text-sm transition-all";
+
+  // Filter and Paginate Data
+  const filteredGames = games.filter(game => 
+    game.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (game.description && game.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+  
+  const totalPages = Math.ceil(filteredGames.length / ITEMS_PER_PAGE) || 1;
+  const paginatedGames = filteredGames.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  // Use Effect to reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   return (
     <div className="space-y-12">
@@ -311,9 +330,19 @@ export const GameManagement: React.FC = () => {
       </NeumorphicCard>
 
       <div className="space-y-6">
-        <h3 className="text-3xl font-black text-deep-green font-lora pl-4">Inventario de Juegos</h3>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pl-4">
+          <h3 className="text-3xl font-black text-deep-green font-lora">Inventario de Juegos</h3>
+          <input 
+            type="text" 
+            placeholder="Buscar por nombre o descripción..." 
+            className="px-6 py-3 rounded-full bg-cafe-bg shadow-neu-pressed border-none focus:ring-2 focus:ring-forest-green/30 outline-none text-deep-green text-sm w-full md:w-96"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        
         <div className="grid grid-cols-1 gap-6">
-          {games.map(game => (
+          {paginatedGames.map(game => (
             <NeumorphicCard key={game.id} className="p-6 flex flex-col md:flex-row justify-between items-center gap-6">
               <div className="w-16 h-16 rounded-cafe bg-cafe-bg shadow-neu-pressed flex items-center justify-center text-2xl overflow-hidden flex-shrink-0">
                 {game.imageUrl ? (
@@ -359,10 +388,33 @@ export const GameManagement: React.FC = () => {
               </div>
             </NeumorphicCard>
           ))}
-          {games.length === 0 && (
-            <p className="text-center py-10 text-forest-green/40 font-bold italic">No hay juegos registrados aún.</p>
+          {filteredGames.length === 0 && (
+            <p className="text-center py-10 text-forest-green/40 font-bold italic">No se encontraron juegos.</p>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {filteredGames.length > 0 && (
+          <div className="flex justify-center items-center gap-4 mt-8">
+            <NeumorphicButton 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className={`px-4 py-2 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              Anterior
+            </NeumorphicButton>
+            <span className="text-sm font-black text-deep-green uppercase tracking-widest">
+              Página {currentPage} de {totalPages}
+            </span>
+            <NeumorphicButton 
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className={`px-4 py-2 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              Siguiente
+            </NeumorphicButton>
+          </div>
+        )}
       </div>
     </div>
   );

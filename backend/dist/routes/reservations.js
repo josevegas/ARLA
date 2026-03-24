@@ -5,6 +5,7 @@ const reservationController_1 = require("../controllers/reservationController");
 const validation_1 = require("../middlewares/validation");
 const reservation_1 = require("../types/reservation");
 const router = (0, express_1.Router)();
+router.post('/find-table', (0, validation_1.validate)(reservation_1.findTableSchema), reservationController_1.findAvailableTable);
 router.post('/', (0, validation_1.validate)(reservation_1.createReservationSchema), reservationController_1.createReservation);
 router.get('/', reservationController_1.getReservations);
 router.get('/:id', reservationController_1.getReservationById);

@@ -1,8 +1,20 @@
 import { Request, Response } from 'express';
 export declare const createMenuItem: (req: Request, res: Response) => Promise<void>;
 export declare const getMenuItems: (_req: Request, res: Response) => Promise<void>;
+export declare const updateMenuItem: (req: Request, res: Response) => Promise<void>;
+export declare const deleteMenuItem: (req: Request, res: Response) => Promise<void>;
 export declare const createPromotion: (req: Request, res: Response) => Promise<void>;
 export declare const getPromotions: (_req: Request, res: Response) => Promise<void>;
+export declare const updatePromotion: (req: Request, res: Response) => Promise<void>;
+export declare const deletePromotion: (req: Request, res: Response) => Promise<void>;
 export declare const createGame: (req: Request, res: Response) => Promise<void>;
 export declare const getGames: (_req: Request, res: Response) => Promise<void>;
+export declare const updateGame: (req: Request, res: Response) => Promise<void>;
+export declare const deleteGame: (req: Request, res: Response) => Promise<void>;
+export declare const getCategories: (_req: Request, res: Response) => Promise<void>;
+export declare const getDifficulties: (_req: Request, res: Response) => Promise<void>;
+export declare const createTable: (req: Request, res: Response) => Promise<void>;
+export declare const getTables: (_req: Request, res: Response) => Promise<void>;
+export declare const updateTable: (req: Request, res: Response) => Promise<void>;
+export declare const deleteTable: (req: Request, res: Response) => Promise<void>;
 //# sourceMappingURL=adminController.d.ts.map

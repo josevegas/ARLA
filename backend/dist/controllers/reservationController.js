@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteReservation = exports.updateReservation = exports.getReservationById = exports.getReservations = exports.createReservation = void 0;
+exports.deleteReservation = exports.updateReservation = exports.getReservationById = exports.getReservations = exports.findAvailableTable = exports.createReservation = void 0;
 const reservationService_1 = require("../services/reservationService");
 const reservationService = new reservationService_1.ReservationService();
 const createReservation = async (req, res) => {
@@ -14,6 +14,20 @@ const createReservation = async (req, res) => {
     }
 };
 exports.createReservation = createReservation;
+const findAvailableTable = async (req, res) => {
+    try {
+        const tableInfo = await reservationService.findAvailableTable(req.body);
+        if (!tableInfo) {
+            return res.status(404).json({ message: 'No available tables found for the specified criteria' });
+        }
+        return res.json(tableInfo);
+    }
+    catch (error) {
+        console.error(`[findAvailableTable]: ${error}`);
+        return res.status(500).json({ message: 'Internal server error while searching for a table' });
+    }
+};
+exports.findAvailableTable = findAvailableTable;
 const getReservations = async (_req, res) => {
     try {
         const reservations = await reservationService.getReservations();

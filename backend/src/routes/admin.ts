@@ -3,11 +3,12 @@ import {
   createMenuItem, getMenuItems, updateMenuItem, deleteMenuItem,
   createPromotion, getPromotions, updatePromotion, deletePromotion,
   createGame, getGames, updateGame, deleteGame,
-  getCategories, getDifficulties
+  getCategories, getDifficulties,
+  createTable, getTables, updateTable, deleteTable
 } from '../controllers/adminController';
 import { auth, authorize } from '../middlewares/auth';
 import { validate } from '../middlewares/validation';
-import { menuItemSchema, promotionSchema, gameSchema } from '../schemas/adminSchema';
+import { menuItemSchema, promotionSchema, gameSchema, tableSchema } from '../schemas/adminSchema';
 
 const router = Router();
 
@@ -35,5 +36,10 @@ router.delete('/promotions/:id', deletePromotion);
 router.post('/games', validate(gameSchema), createGame);
 router.put('/games/:id', validate(gameSchema), updateGame);
 router.delete('/games/:id', deleteGame);
+
+router.get('/tables', getTables);
+router.post('/tables', validate(tableSchema), createTable);
+router.put('/tables/:id', validate(tableSchema), updateTable);
+router.delete('/tables/:id', deleteTable);
 
 export default router;

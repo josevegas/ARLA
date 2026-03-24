@@ -41,3 +41,13 @@ export const promotionSchema = z.object({
   params: z.any().optional(),
   query: z.any().optional(),
 });
+
+export const tableSchema = z.object({
+  body: z.object({
+    capacity: z.coerce.number().int().positive(),
+    description: z.string().nullish(),
+    status: z.enum(['AVAILABLE', 'OCCUPIED', 'RESERVED']).optional(),
+  }).passthrough(),
+  params: z.any().optional(),
+  query: z.any().optional(),
+});

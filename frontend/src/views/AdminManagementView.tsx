@@ -3,9 +3,10 @@ import { NeumorphicButton } from '../components/NeumorphicButton';
 import { GameManagement } from './GameManagement';
 import { MenuManagement } from './MenuManagement';
 import { PromotionsManagement } from './PromotionsManagement';
+import { TableManagement } from './TableManagement';
 
 export const AdminManagementView: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'juegos' | 'menu' | 'promos'>('juegos');
+  const [activeTab, setActiveTab] = useState<'juegos' | 'menu' | 'promos' | 'mesas'>('juegos');
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -19,6 +20,7 @@ export const AdminManagementView: React.FC = () => {
           { id: 'juegos', label: 'Ludoteca', icon: '🎲' },
           { id: 'menu', label: 'Gastronomía', icon: '☕' },
           { id: 'promos', label: 'Marketing', icon: '🏷️' },
+          { id: 'mesas', label: 'Mesas', icon: '🪑' },
         ].map(tab => (
           <NeumorphicButton 
             key={tab.id}
@@ -38,6 +40,7 @@ export const AdminManagementView: React.FC = () => {
         {activeTab === 'juegos' && <GameManagement />}
         {activeTab === 'menu' && <MenuManagement />}
         {activeTab === 'promos' && <PromotionsManagement />}
+        {activeTab === 'mesas' && <TableManagement />}
       </div>
     </div>
   );

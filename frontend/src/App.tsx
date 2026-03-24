@@ -10,8 +10,9 @@ import { RegisterView } from './views/RegisterView';
 import { ProfileView } from './views/ProfileView';
 import { GameCatalogView } from './views/GameCatalogView';
 import { MenuView } from './views/MenuView';
+import { ReservationView } from './views/ReservationView';
 
-type ViewType = 'dashboard' | 'history' | 'admin' | 'login' | 'register' | 'profile' | 'catalog' | 'menu';
+type ViewType = 'home' | 'history' | 'admin' | 'login' | 'register' | 'profile' | 'catalog' | 'menu' | 'reservation';
 
 const Dashboard: React.FC<{ onViewChange: (view: ViewType) => void }> = ({ onViewChange }) => {
   const [promos, setPromos] = useState<any[]>([]);
@@ -61,7 +62,7 @@ const Dashboard: React.FC<{ onViewChange: (view: ViewType) => void }> = ({ onVie
         {[
           { icon: '🎲', title: 'Ludoteca', bTitle: 'Explorar Juegos', view: 'catalog' },
           { icon: '☕', title: 'Menú', bTitle: 'Ver Carta', view: 'menu' },
-          { icon: '📅', title: 'Reservas', bTitle: 'Mesa & Juego', view: 'dashboard' },
+          { icon: '📅', title: 'Reservas', bTitle: 'Mesa & Juego', view: 'reservation' },
           { icon: '🏆', title: 'Comunidad', bTitle: 'Tu Perfil', view: 'profile' },
         ].map((item, idx) => (
           <NeumorphicCard key={idx} className="flex flex-col items-center text-center p-10 group transition-all duration-500 hover:scale-105">
@@ -103,17 +104,18 @@ const Dashboard: React.FC<{ onViewChange: (view: ViewType) => void }> = ({ onVie
 
 const AppContent: React.FC = () => {
   const { user } = useAuth();
-  const [activeView, setActiveView] = useState<ViewType>('dashboard');
+  const [activeView, setActiveView] = useState<ViewType>('home');
 
   return (
     <Layout activeView={activeView} onViewChange={setActiveView}>
-      {activeView === 'dashboard' && <Dashboard onViewChange={setActiveView} />}
+      {activeView === 'home' && <Dashboard onViewChange={setActiveView} />}
       {activeView === 'login' && <LoginView onSuccess={() => setActiveView('profile')} onRegister={() => setActiveView('register')} />}
       {activeView === 'register' && <RegisterView onSuccess={() => setActiveView('profile')} />}
       {activeView === 'profile' && (user ? <ProfileView /> : <LoginView onSuccess={() => setActiveView('profile')} onRegister={() => setActiveView('register')} />)}
       {activeView === 'catalog' && <GameCatalogView />}
       {activeView === 'menu' && <MenuView />}
-      {activeView === 'history' && (user ? <UserHistoryView /> : <LoginView onSuccess={() => setActiveView('dashboard')} onRegister={() => setActiveView('register')} />)}
+      {activeView === 'reservation' && <ReservationView />}
+      {activeView === 'history' && (user ? <UserHistoryView /> : <LoginView onSuccess={() => setActiveView('home')} onRegister={() => setActiveView('register')} />)}
       {activeView === 'admin' && (user?.role === 'ADMIN' || user?.role === 'SUPERADMIN' ? <AdminManagementView /> : <Dashboard onViewChange={setActiveView} />)}
     </Layout>
   );

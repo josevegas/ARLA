@@ -76,4 +76,18 @@ export class AdminService {
   async getDifficulties() {
     return await prisma.difficulty.findMany({ orderBy: { createdAt: 'asc' } });
   }
+
+  // Tables
+  async createTable(data: any) {
+    return await prisma.table.create({ data });
+  }
+  async getTables() {
+    return await prisma.table.findMany({ orderBy: { createdAt: 'desc' } });
+  }
+  async updateTable(id: string, data: any) {
+    return await prisma.table.update({ where: { id }, data });
+  }
+  async deleteTable(id: string) {
+    return await prisma.table.delete({ where: { id } });
+  }
 }

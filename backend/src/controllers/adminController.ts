@@ -132,3 +132,39 @@ export const getDifficulties = async (_req: Request, res: Response) => {
   }
 };
 
+export const createTable = async (req: Request, res: Response) => {
+  try {
+    const table = await adminService.createTable(req.body);
+    res.status(201).json(table);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const getTables = async (_req: Request, res: Response) => {
+  try {
+    const tables = await adminService.getTables();
+    res.json(tables);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateTable = async (req: Request, res: Response) => {
+  try {
+    const table = await adminService.updateTable(req.params.id, req.body);
+    res.json(table);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const deleteTable = async (req: Request, res: Response) => {
+  try {
+    await adminService.deleteTable(req.params.id);
+    res.status(204).send();
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+

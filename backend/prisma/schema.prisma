@@ -17,11 +17,6 @@ enum Role {
   CLIENT
 }
 
-enum Location {
-  TERRAZA
-  SALON
-}
-
 enum Status {
   AVAILABLE
   OCCUPIED
@@ -89,7 +84,7 @@ model Visit {
 model Table {
   id         String   @id @default(cuid())
   capacity   Int
-  location   Location
+  description   String
   status     Status   @default(AVAILABLE)
   sales      Sale[]
   reservations Reservation[]
@@ -128,6 +123,7 @@ model Game {
   gameHistory   GameHistory[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  reservations  Reservation[] @relation("ReservationGames")
 }
 
 model Sale {
@@ -148,7 +144,10 @@ model Reservation {
   date        DateTime
   time        String   // e.g., "14:00"
   peopleCount Int
+  playerNames String[]
   prepayment  Boolean  @default(false)
+  shareTable  Boolean  @default(false)
+  games       Game[]   @relation("ReservationGames")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
