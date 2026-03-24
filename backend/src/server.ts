@@ -7,6 +7,7 @@ import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
 import userRoutes from './routes/user';
 import reservationRoutes from './routes/reservations';
+import { getPromotions } from './controllers/adminController';
 import { errorHandler } from './middlewares/errorHandler';
 
 dotenv.config();
@@ -40,6 +41,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reservations', reservationRoutes);
+app.get('/api/promociones', getPromotions);
 
 // Health Check
 app.get('/health', (req, res) => res.status(200).json({ status: 'OK' }));

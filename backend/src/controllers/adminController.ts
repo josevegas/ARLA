@@ -53,27 +53,52 @@ export const createPromotion = async (req: Request, res: Response) => {
 export const getPromotions = async (_req: Request, res: Response) => {
   try {
     const promotions = await adminService.getPromotions();
-    res.json(promotions);
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    return res.json(promotions);
+  } catch (error) {
+    console.error(`[getPromotions]: ${error}`);
+    return res.status(500).json({ message: 'Internal server error while fetching promotions' });
   }
 };
 
 export const updatePromotion = async (req: Request, res: Response) => {
   try {
     const promotion = await adminService.updatePromotion(req.params.id, req.body);
-    res.json(promotion);
-  } catch (error: any) {
-    res.status(400).json({ message: error.message });
+    return res.json(promotion);
+  } catch (error) {
+    console.error(`[updatePromotion]: ${error}`);
+    return res.status(500).json({ message: 'Internal server error while updating promotion' });
   }
 };
 
 export const deletePromotion = async (req: Request, res: Response) => {
   try {
     await adminService.deletePromotion(req.params.id);
-    res.status(204).send();
-  } catch (error: any) {
-    res.status(400).json({ message: error.message });
+    return res.status(204).send();
+  } catch (error) {
+    console.error(`[deletePromotion]: ${error}`);
+    return res.status(500).json({ message: 'Internal server error while deleting promotion' });
+  }
+};
+
+// Admin Reservations
+export const getAdminReservations = async (_req: Request, res: Response) => {
+  try {
+    const data = await adminService.getAdminReservations();
+    return res.json(data);
+  } catch (error) {
+    console.error(`[getAdminReservations]: ${error}`);
+    return res.status(500).json({ message: 'Internal server error while fetching admin reservations' });
+  }
+};
+
+export const updateReservationStatus = async (req: Request, res: Response) => {
+  try {
+    const { status } = req.body;
+    const reservation = await adminService.updateReservationStatus(req.params.id, status);
+    return res.json(reservation);
+  } catch (error) {
+    console.error(`[updateReservationStatus]: ${error}`);
+    return res.status(500).json({ message: 'Internal server error while updating reservation status' });
   }
 };
 

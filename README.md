@@ -112,9 +112,13 @@ Consulta `AGENTS.md` para definiciones de agentes especializados en diferentes a
 - **Actualizada la interfaz administrativa**: soporte para selección múltiple de categorías y asignación dinámica de niveles de dificultad dinámicos.
 - **Mejorada la experiencia de usuario (UX) en catálogos**: implementada paginación en el catálogo de juegos y la carta gastronómica. Se añadieron barras de búsqueda por nombre y descripciones, y, en el catálogo de juegos, los filtros de categorías y dificultad ahora utilizan componentes de selección múltiple con capacidad de búsqueda, optimizando la exploración del contenido.
 - **Implementado el registro avanzado de reservas de mesas**: Se añadieron 2 mesas de 4 jugadores y 2 de 8 jugadores al espacio lúdico. Al iniciar una reserva, los usuarios pueden seleccionar si desean compartir mesa. El sistema prioriza las mesas de 8 jugadores ya habilitadas para compartir. Los usuarios pueden preseleccionar hasta 2 juegos de mesa y, al unirse a una mesa compartida, pueden ver los jugadores actuales y los juegos ya elegidos por ellos, con una pantalla de confirmación antes de guardar.
-- **Rediseño del Dashboard de Usuario**: Ahora los usuarios autenticados ven un resumen visual de su reserva activa (si existe), incluyendo la descripción de la mesa, la fecha, la hora, la lista completa de jugadores registrados y los juegos preseleccionados.
-- **Nuevo Flujo de Reserva en Dos Etapas**:
-    - **Etapa 1: Requisitos**: Configuración de exclusividad (Compartida vs Exclusiva), número de lugares y fecha/hora.
-    - **Etapa 2: Selección Inteligente**: Visualización de mesas disponibles ordenadas por aprovechamiento de espacio (ajuste óptimo). Cada mesa muestra sus ocupantes actuales y juegos en curso para facilitar la integración social en mesas compartidas.
-    - **Personalización de Grupo**: Introducción obligatoria de los nombres de todos los asistentes y selección de juegos mediante un componente de búsqueda multiselección.
-- **Lógica de Negocio Reforzada**: Validación estricta de capacidad total por mesa, restricción de múltiples reservas activas con advertencias preventivas y sincronización de datos mediante JSON en PostgreSQL.
+- **Refactorización de Navegación a React Router**: Migración de un sistema de estados internos a un enrutamiento declarativo con URLs persistentes (`/`, `/ludoteca`, `/menu`, `/reserva`, `/perfil`, `/admin/reservas`).
+- **Página de Inicio Dinámica**:
+    - **Carrusel de Promociones**: Sistema automatizado y manual para visualizar ofertas directamente desde la base de datos (`/api/promociones`).
+    - **Dashboard Unificado**: Acceso rápido a las secciones clave y visualización inmediata de las reservas próximas del usuario.
+- **Panel de Administración de Reservas Avanzado**:
+    - Agrupación por mesa física para una mejor visualización logística.
+    - Cálculo de aforo en tiempo real basado en el estado de las reservas.
+    - Sistema de confirmación de asistencia con actualización instantánea de disponibilidad.
+- **Arquitectura de Seguridad**: Implementación de rutas protegidas (`ProtectedRoute`) y redirecciones automáticas tras el cierre de sesión.
+- **Evolución del Modelo de Datos**: Incorporación de estados de reserva (`PENDING`, `CONFIRMED`, `CANCELLED`) para un control granular del flujo de negocio.

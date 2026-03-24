@@ -98,25 +98,40 @@ export class ReservationService {
   }
 
   async getActiveReservationForUser(userId: string) {
-    // Current or future reservation (simplified to any reservation for today onwards)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return await prisma.reservation.findFirst({
+    const reservation = await prisma.reservation.findFirst({
       where: {
         userId,
-        date: {
-          gte: today
-        }
+        date: { gte: today }
       },
-      orderBy: {
-        date: 'asc'
-      },
+      orderBy: { date: 'asc' },
       include: {
         table: true,
         games: true
       }
     });
+
+    if (!reservation) return null;
+
+    // Get all reservations for the SAME table and date to aggregate players/games
+    const allReservationsForTableDate = await prisma.reservation.findMany({
+      where: {
+        tableId: reservation.tableId,
+        date: reservation.date,
+        status: { not: 'CANCELLED' }
+      },
+      include: { games: true }
+    });
+
+    return {
+      ...reservation,
+      aggregatedData: {
+        allPlayerNames: Array.from(new Set(allReservationsForTableDate.flatMap(r => r.playerNames))),
+        allGames: Array.from(new Set(allReservationsForTableDate.flatMap(r => r.games.map(g => g.name))))
+      }
+    };
   }
 
   async getReservations() {

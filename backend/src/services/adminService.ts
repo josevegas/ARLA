@@ -90,4 +90,26 @@ export class AdminService {
   async deleteTable(id: string) {
     return await prisma.table.delete({ where: { id } });
   }
+
+  // Admin Reservation Management
+  async getAdminReservations() {
+    return await prisma.table.findMany({
+      include: {
+        reservations: {
+          include: { 
+            games: true,
+            user: true
+          },
+          orderBy: { createdAt: 'desc' }
+        }
+      }
+    });
+  }
+
+  async updateReservationStatus(id: string, status: 'PENDING' | 'CONFIRMED' | 'CANCELLED') {
+    return await prisma.reservation.update({
+      where: { id },
+      data: { status }
+    });
+  }
 }

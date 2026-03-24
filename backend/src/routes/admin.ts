@@ -4,7 +4,8 @@ import {
   createPromotion, getPromotions, updatePromotion, deletePromotion,
   createGame, getGames, updateGame, deleteGame,
   getCategories, getDifficulties,
-  createTable, getTables, updateTable, deleteTable
+  createTable, getTables, updateTable, deleteTable,
+  getAdminReservations, updateReservationStatus
 } from '../controllers/adminController';
 import { auth, authorize } from '../middlewares/auth';
 import { validate } from '../middlewares/validation';
@@ -41,5 +42,8 @@ router.get('/tables', getTables);
 router.post('/tables', validate(tableSchema), createTable);
 router.put('/tables/:id', validate(tableSchema), updateTable);
 router.delete('/tables/:id', deleteTable);
+
+router.get('/reservations', getAdminReservations);
+router.post('/reservations/:id/status', updateReservationStatus);
 
 export default router;

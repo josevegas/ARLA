@@ -135,6 +135,12 @@ model Sale {
   date      DateTime @default(now())
 }
 
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
 model Reservation {
   id          String   @id @default(cuid())
   userId      String?
@@ -147,6 +153,7 @@ model Reservation {
   playerNames String[]
   prepayment  Boolean  @default(false)
   shareTable  Boolean  @default(false)
+  status      ReservationStatus @default(PENDING)
   games       Game[]   @relation("ReservationGames")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
