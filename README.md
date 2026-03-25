@@ -122,3 +122,4 @@ Consulta `AGENTS.md` para definiciones de agentes especializados en diferentes a
     - Sistema de confirmación de asistencia con actualización instantánea de disponibilidad.
 - **Arquitectura de Seguridad**: Implementación de rutas protegidas (`ProtectedRoute`) y redirecciones automáticas tras el cierre de sesión.
 - **Evolución del Modelo de Datos**: Incorporación de estados de reserva (`PENDING`, `CONFIRMED`, `CANCELLED`) para un control granular del flujo de negocio.
+- **Optimización Logística del Panel de Reservas**: Rediseño de la vista administrativa (`/admin/reservas`) para agrupar reservas por mesa física. Se implementó una visualización unificada de jugadores y juegos, cálculo automático de aforo libre por mesa y un sistema de confirmación de asistencia individual mediante botones dinámicos para cada jugador.

@@ -140,95 +140,98 @@ export const AdminReservationsView: React.FC = () => {
           if (reservationsForDate.length === 0 && tableFilter === 'ALL') return null;
 
           const totalOccupied = reservationsForDate.reduce((acc, r) => acc + r.peopleCount, 0);
-          const allPlayers = Array.from(new Set(reservationsForDate.flatMap(r => r.playerNames)));
+          
+          // Unified players with reservation context
+          const playerButtons = reservationsForDate.flatMap(res => 
+            res.playerNames.map(name => ({
+              name,
+              resId: res.id,
+              status: res.status,
+              time: res.time
+            }))
+          );
+
           const allGames = Array.from(new Set(reservationsForDate.flatMap(r => r.games.map(g => g.name))));
+          const freeSpots = table.capacity - totalOccupied;
 
           return (
-            <div key={table.id} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
-                 <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 rounded-cafe bg-white shadow-neu-flat flex flex-col items-center justify-center border border-white/40">
-                       <span className="text-2xl font-black text-deep-green">{table.capacity}</span>
-                       <span className="text-[8px] font-black uppercase opacity-30">asientos</span>
-                    </div>
-                    <div>
-                       <h3 className="text-3xl font-black text-deep-green font-lora">{table.description}</h3>
-                       <div className="flex gap-4 mt-2">
-                          <span className="text-[10px] font-black text-forest-green uppercase flex items-center gap-1"><Users size={12}/> {totalOccupied} ocupados</span>
-                          <span className={`${table.capacity - totalOccupied <= 0 ? 'text-terracotta' : 'text-green-600'} text-[10px] font-black uppercase`}>
-                             {table.capacity - totalOccupied} lugares libres
-                          </span>
-                       </div>
-                    </div>
-                 </div>
-
-                 <div className="bg-cafe-surface/30 p-4 rounded-cafe border border-white/20 shadow-neu-pressed flex-1 md:max-w-md">
-                    <div className="space-y-3">
-                       <div>
-                          <p className="text-[9px] font-black uppercase text-deep-green/30 mb-1">Unificado Jugadores ({allPlayers.length})</p>
-                          <p className="text-[10px] font-bold text-deep-green leading-relaxed">{allPlayers.join(', ') || 'Nadie registrado'}</p>
-                       </div>
-                       <div>
-                          <p className="text-[9px] font-black uppercase text-deep-green/30 mb-1">Unificado Juegos</p>
-                          <p className="text-[10px] font-black text-terracotta uppercase">{allGames.join(' • ') || 'Sin juegos'}</p>
-                       </div>
-                    </div>
-                 </div>
-              </div>
-
-              {/* Reservation Cards for this table */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {reservationsForDate.map(res => (
-                    <NeumorphicCard key={res.id} className={`p-6 border-t-8 transition-all relative group ${res.status === 'CONFIRMED' ? 'border-green-500 bg-green-50/10' : 'border-terracotta'}`}>
-                       <div className="flex justify-between items-center mb-6">
-                          <div className="flex items-center gap-2">
-                             <div className="w-8 h-8 rounded-full bg-white shadow-neu-pressed flex items-center justify-center text-forest-green">
-                               <Clock size={14} />
-                             </div>
-                             <span className="font-black text-deep-green">{res.time}</span>
-                          </div>
-                          <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${res.status === 'CONFIRMED' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-terracotta/5 text-terracotta border-terracotta/10'}`}>
-                             {res.status}
-                          </span>
-                       </div>
-
-                       <div className="space-y-4 mb-8">
-                          <div>
-                             <p className="text-[9px] font-black uppercase text-deep-green/30 mb-1">Grupo ({res.peopleCount} pers.)</p>
-                             <div className="text-[10px] font-bold text-deep-green flex flex-wrap gap-1">
-                                {res.playerNames.map((n, i) => <span key={i} className="after:content-[','] last:after:content-['']">{n}</span>)}
-                             </div>
-                             {res.user && <p className="text-[8px] text-forest-green/60 mt-2 font-medium">Por: {res.user.name} ({res.user.email})</p>}
-                          </div>
-                       </div>
-
-                       <div className="flex gap-2">
-                          {res.status === 'PENDING' ? (
-                            <>
-                              <NeumorphicButton 
-                                onClick={() => handleUpdateStatus(res.id, 'CONFIRMED')}
-                                className="flex-1 py-3 bg-forest-green text-white text-[9px] font-black uppercase tracking-widest shadow-neu-flat border-none"
-                              >
-                                Confirmar
-                              </NeumorphicButton>
-                              <NeumorphicButton 
-                                onClick={() => handleUpdateStatus(res.id, 'CANCELLED')}
-                                variant="pressed" 
-                                className="px-4 text-red-500 shadow-neu-pressed"
-                              >
-                                <XCircle size={16} />
-                              </NeumorphicButton>
-                            </>
-                          ) : (
-                            <div className="w-full py-2 text-center text-green-600 font-black uppercase text-[9px] tracking-widest flex items-center justify-center gap-2 bg-green-50 rounded-full border border-green-100">
-                               <CheckCircle size={12} /> Cliente en Mesa
+            <div key={table.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <NeumorphicCard className="p-8 border-t-8 border-forest-green">
+                <div className="flex flex-col lg:flex-row gap-12">
+                   {/* Table Info & Capacity */}
+                   <div className="lg:w-1/4 space-y-6">
+                      <div className="flex items-center gap-4">
+                         <div className="w-16 h-16 rounded-cafe bg-white shadow-neu-flat flex flex-col items-center justify-center border border-white/40 flex-shrink-0">
+                            <span className="text-2xl font-black text-deep-green">{table.capacity}</span>
+                            <span className="text-[7px] font-black uppercase opacity-30">asientos</span>
+                         </div>
+                         <div>
+                            <h3 className="text-2xl font-black text-deep-green font-lora">{table.description}</h3>
+                            <div className="flex flex-col gap-1 mt-1">
+                               <span className="text-[10px] font-black text-forest-green uppercase flex items-center gap-1">
+                                  <Users size={12}/> {totalOccupied} Ocupados
+                               </span>
+                               <span className={`${freeSpots <= 0 ? 'text-terracotta' : 'text-green-600'} text-[10px] font-black uppercase`}>
+                                  {freeSpots} Lugares Libres
+                               </span>
                             </div>
-                          )}
-                       </div>
-                    </NeumorphicCard>
-                  ))}
-              </div>
-              <div className="border-b border-deep-green/5 pt-8"></div>
+                         </div>
+                      </div>
+
+                      <div className="pt-6 border-t border-deep-green/5">
+                         <p className="text-[9px] font-black uppercase text-deep-green/30 mb-3 tracking-widest">Juegos en Mesa</p>
+                         <div className="flex flex-wrap gap-2">
+                            {allGames.length > 0 ? allGames.map((game, idx) => (
+                               <span key={idx} className="px-3 py-1 bg-terracotta/5 border border-terracotta/10 text-terracotta rounded-full text-[9px] font-black uppercase tracking-tighter">
+                                  {game}
+                               </span>
+                            )) : (
+                               <span className="text-[10px] italic text-deep-green/20">Sin juegos seleccionados</span>
+                            )}
+                         </div>
+                      </div>
+                   </div>
+
+                   {/* Players Confirmation List */}
+                   <div className="flex-1 space-y-4">
+                      <p className="text-[9px] font-black uppercase text-deep-green/30 mb-4 tracking-widest flex justify-between items-center">
+                         <span>Control de Asistencia (Jugadores en Fecha)</span>
+                         <span className="bg-white/50 px-2 py-0.5 rounded-full shadow-sm">{playerButtons.length} Jugadores</span>
+                      </p>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                         {playerButtons.map((p, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => p.status === 'PENDING' && handleUpdateStatus(p.resId, 'CONFIRMED')}
+                              className={`group relative p-4 rounded-cafe transition-all duration-300 flex flex-col items-start gap-2 text-left border-2 ${
+                                p.status === 'CONFIRMED' 
+                                ? 'bg-green-50/50 border-green-500 shadow-neu-flat' 
+                                : 'bg-cafe-bg border-transparent shadow-neu-flat hover:border-forest-green/30 active:shadow-neu-pressed'
+                              }`}
+                            >
+                               <div className="flex justify-between items-center w-full">
+                                  <span className="text-[8px] font-black text-deep-green/40 uppercase">{p.time}</span>
+                                  {p.status === 'CONFIRMED' && <CheckCircle size={10} className="text-green-600" />}
+                               </div>
+                               <span className={`text-xs font-black uppercase tracking-tighter ${p.status === 'CONFIRMED' ? 'text-green-700' : 'text-deep-green'}`}>
+                                  {p.name}
+                               </span>
+                               {p.status === 'PENDING' && (
+                                  <span className="text-[7px] font-bold text-forest-green opacity-0 group-hover:opacity-100 transition-opacity">Confirmar</span>
+                                )}
+                            </button>
+                         ))}
+                      </div>
+
+                      {playerButtons.length === 0 && (
+                         <div className="py-12 text-center bg-white/30 rounded-cafe border border-dashed border-deep-green/10">
+                            <p className="text-[10px] font-black uppercase text-deep-green/20">No hay jugadores registrados aún</p>
+                         </div>
+                      )}
+                   </div>
+                </div>
+              </NeumorphicCard>
             </div>
           );
         })}
