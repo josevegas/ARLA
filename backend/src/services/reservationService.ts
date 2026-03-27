@@ -98,13 +98,17 @@ export class ReservationService {
   }
 
   async getActiveReservationForUser(userId: string) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // We use a more lenient date to avoid timezone issues (midnight UTC vs local)
+    // We'll show any reservation from "today" - 1 day to be safe.
+    const threshold = new Date();
+    threshold.setUTCHours(0, 0, 0, 0);
+    threshold.setDate(threshold.getDate() - 1);
 
-    const reservation = await prisma.reservation.findFirst({
+    const reservations = await prisma.reservation.findMany({
       where: {
         userId,
-        date: { gte: today }
+        date: { gte: threshold },
+        status: { not: 'CANCELLED' }
       },
       orderBy: { date: 'asc' },
       include: {
@@ -113,25 +117,32 @@ export class ReservationService {
       }
     });
 
-    if (!reservation) return null;
+    console.log(`[getActiveReservationForUser] UserId: ${userId}, Threshold: ${threshold.toISOString()}`);
+    console.log(`[getActiveReservationForUser] Found ${reservations.length} reservations`);
 
-    // Get all reservations for the SAME table and date to aggregate players/games
-    const allReservationsForTableDate = await prisma.reservation.findMany({
-      where: {
-        tableId: reservation.tableId,
-        date: reservation.date,
-        status: { not: 'CANCELLED' }
-      },
-      include: { games: true }
-    });
+    if (reservations.length === 0) return [];
 
-    return {
-      ...reservation,
-      aggregatedData: {
-        allPlayerNames: Array.from(new Set(allReservationsForTableDate.flatMap(r => r.playerNames))),
-        allGames: Array.from(new Set(allReservationsForTableDate.flatMap(r => r.games.map(g => g.name))))
-      }
-    };
+    // Aggregate data for EACH reservation
+    const results = await Promise.all(reservations.map(async (res) => {
+      const allReservationsForTableDate = await prisma.reservation.findMany({
+        where: {
+          tableId: res.tableId,
+          date: res.date,
+          status: { not: 'CANCELLED' }
+        },
+        include: { games: true }
+      });
+
+      return {
+        ...res,
+        aggregatedData: {
+          allPlayerNames: Array.from(new Set(allReservationsForTableDate.flatMap(r => r.playerNames))),
+          allGames: Array.from(new Set(allReservationsForTableDate.flatMap(r => r.games.map(g => g.name))))
+        }
+      };
+    }));
+
+    return results;
   }
 
   async getReservations() {

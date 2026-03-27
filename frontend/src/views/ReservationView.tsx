@@ -59,7 +59,8 @@ export const ReservationView: React.FC = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        setActiveReservation(data);
+        const active = Array.isArray(data) ? data[0] : data;
+        setActiveReservation(active);
       }
     } catch (err) {
       console.error('Error fetching active reservation:', err);

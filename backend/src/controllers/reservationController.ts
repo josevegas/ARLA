@@ -27,6 +27,7 @@ export const findAvailableTables = async (req: Request, res: Response) => {
 export const getActiveReservation = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.params.userId || req.user?.id;
+    console.log(`[reservationController] getActiveReservation for userId: ${userId}`);
     if (!userId) return res.status(400).json({ message: 'User ID required' });
     const reservation = await reservationService.getActiveReservationForUser(userId);
     return res.json(reservation);

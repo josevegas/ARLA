@@ -51,9 +51,15 @@ export const HomeView: React.FC = () => {
       })
       .then(res => res.json())
       .then(data => {
-        if (data) setActiveReservations(Array.isArray(data) ? data : [data]);
+        console.log('[HomeView] Active reservations data:', data);
+        if (data) {
+          const resArray = Array.isArray(data) ? data : (data.id ? [data] : []);
+          setActiveReservations(resArray);
+        }
       })
-      .catch(console.error);
+      .catch(err => {
+        console.error('[HomeView] Fetch reservations error:', err);
+      });
     }
   }, [user, token]);
 
