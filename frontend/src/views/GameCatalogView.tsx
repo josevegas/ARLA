@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import Select from 'react-select';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
+import { X, Check, Gamepad2 } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -32,6 +34,17 @@ export const GameCatalogView: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<{value: string, label: string}[]>([]);
   const [selectedDifficulty, setSelectedDifficulty] = useState<{value: string, label: string} | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const isSelectMode = searchParams.get('mode') === 'select';
+  
+  const [selectedGames, setSelectedGames] = useState<Game[]>(() => {
+    const saved = localStorage.getItem('temp_selected_games');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [showModal, setShowModal] = useState<{show: boolean, game: Game | null}>({show: false, game: null});
+
   const itemsPerPage = 6;
 
   useEffect(() => {
@@ -46,6 +59,35 @@ export const GameCatalogView: React.FC = () => {
     };
     fetchGames();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('temp_selected_games', JSON.stringify(selectedGames));
+  }, [selectedGames]);
+
+  const handleSelectGame = (game: Game) => {
+    if (selectedGames.length >= 2) {
+      alert('Ya tienes 2 juegos seleccionados');
+      return;
+    }
+    if (selectedGames.some(g => g.id === game.id)) {
+      alert('Este juego ya está seleccionado');
+      return;
+    }
+    
+    const newList = [...selectedGames, game];
+    setSelectedGames(newList);
+    
+    if (newList.length === 2) {
+       // Automatic prompt to continue if reached limit
+       setShowModal({ show: true, game });
+    } else {
+       setShowModal({ show: true, game });
+    }
+  };
+
+  const removeGame = (id: string) => {
+    setSelectedGames(selectedGames.filter(g => g.id !== id));
+  };
 
   const categoryOptions = Array.from(new Set(games.flatMap(g => g.categories.map(c => c.name)).filter(Boolean))).sort().map(c => ({ value: c as string, label: c as string }));
   const difficultyOptions = Array.from(new Set(games.map(g => g.difficulty?.name).filter(Boolean))).sort().map(d => ({ value: d as string, label: d as string }));
@@ -62,7 +104,6 @@ export const GameCatalogView: React.FC = () => {
 
   if (selectedCategories.length > 0) {
     const catValues = selectedCategories.map(c => c.value);
-    // AND condition: game must have all selected categories
     filteredGames = filteredGames.filter(g => 
       catValues.every(catFilter => g.categories.some(c => c.name === catFilter))
     );
@@ -147,24 +188,27 @@ export const GameCatalogView: React.FC = () => {
 
   const GameItemCard = ({ game }: { game: Game }) => {
     const [isFlipped, setIsFlipped] = useState(false);
+    const isSelected = selectedGames.some(g => g.id === game.id);
   
     return (
       <div 
-        className="group w-full cursor-pointer h-full min-h-[480px]"
+        className="group w-full cursor-pointer h-full min-h-[480px] relative"
         style={{ perspective: 1200 }}
-        onClick={() => setIsFlipped(!isFlipped)}
       >
         <div className={`relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
           
           {/* Front */}
-          <NeumorphicCard className="absolute inset-0 [backface-visibility:hidden] flex flex-col bg-cafe-surface p-6 border border-white/10 hover:-translate-y-2 transition-transform duration-500">
+          <NeumorphicCard 
+            onClick={() => setIsFlipped(!isFlipped)}
+            className={`absolute inset-0 [backface-visibility:hidden] flex flex-col bg-cafe-surface p-6 border transition-all duration-500 overflow-hidden ${isSelected ? 'border-terracotta shadow-neu-pressed ring-2 ring-terracotta/20' : 'border-white/10 hover:-translate-y-2'}`}
+          >
+            {isSelected && (
+              <div className="absolute top-4 right-4 bg-terracotta text-white p-1 rounded-full z-10 shadow-lg">
+                <Check size={16} />
+              </div>
+            )}
             <div className="h-56 bg-cafe-bg rounded-cafe flex items-center justify-center text-8xl shadow-neu-pressed mb-8 relative overflow-hidden flex-shrink-0">
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity z-10"></div>
-              {game.imageUrl ? (
-                <img src={game.imageUrl} alt={game.name} className="w-full h-full object-cover" />
-              ) : (
-                "🎲"
-              )}
+               {game.imageUrl ? <img src={game.imageUrl} alt={game.name} className="w-full h-full object-cover" /> : "🎲"}
             </div>
             
             <div className="flex-1 flex flex-col">
@@ -176,32 +220,17 @@ export const GameCatalogView: React.FC = () => {
                     </span>
                   ))}
                 </div>
-                {game.difficulty && (
-                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest text-coffee-bean bg-coffee-bean/5`}>
-                    {game.difficulty.name}
-                  </span>
-                )}
               </div>
-              
               <h3 className="text-3xl font-black text-deep-green mb-4 leading-tight font-lora">{game.name}</h3>
-              
-              <div className="mt-auto flex justify-center pb-2">
-                 <span className="text-[10px] uppercase font-black tracking-widest text-deep-green/30 animate-pulse">Click para ver más</span>
-              </div>
             </div>
           </NeumorphicCard>
   
           {/* Back */}
-          <NeumorphicCard className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col bg-cafe-surface p-8 border border-white/10 overflow-hidden text-center z-10">
+          <NeumorphicCard 
+            className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col bg-cafe-surface p-8 border border-white/10 overflow-hidden text-center z-10"
+            onClick={() => setIsFlipped(!isFlipped)}
+          >
               <h3 className="text-2xl font-black text-deep-green mb-4 leading-tight font-lora line-clamp-2">{game.name}</h3>
-              <div className="w-28 h-28 mx-auto rounded-full overflow-hidden shadow-neu-pressed mb-4 flex-shrink-0 bg-cafe-bg flex items-center justify-center text-5xl">
-                {game.imageUrl ? (
-                  <img src={game.imageUrl} alt={game.name} className="w-full h-full object-cover" />
-                ) : (
-                  "🎲"
-                )}
-              </div>
-              
               <div className="flex-1 overflow-y-auto mb-4 pr-2">
                 <p className="text-sm font-medium text-deep-green/70 italic text-justify">
                   {game.description || "Sin descripción disponible."}
@@ -219,32 +248,84 @@ export const GameCatalogView: React.FC = () => {
                 </div>
               </div>
   
-              <NeumorphicButton 
-                className="w-full py-4 text-xs font-black uppercase tracking-widest bg-forest-green text-white border-none shadow-neu-flat hover:scale-105 transition-transform"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              >
-                Reservar
-              </NeumorphicButton>
+              {isSelectMode ? (
+                <NeumorphicButton 
+                  className={`w-full py-4 text-xs font-black uppercase tracking-widest border-none text-white shadow-neu-flat hover:scale-105 transition-transform ${isSelected ? 'bg-terracotta disabled:opacity-50' : 'bg-forest-green'}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isSelected) removeGame(game.id);
+                    else handleSelectGame(game);
+                  }}
+                  disabled={!isSelected && selectedGames.length >= 2}
+                >
+                  {isSelected ? 'Quitar' : 'Seleccionar'}
+                </NeumorphicButton>
+              ) : (
+                <Link to="/reserva" onClick={(e) => e.stopPropagation()}>
+                    <NeumorphicButton className="w-full py-4 text-xs font-black uppercase tracking-widest bg-forest-green text-white border-none shadow-neu-flat hover:scale-105 transition-transform">
+                        Ir a Reservar
+                    </NeumorphicButton>
+                </Link>
+              )}
           </NeumorphicCard>
-  
         </div>
       </div>
     );
   };
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-12 pb-32">
+      {/* Selection Banner */}
+      {isSelectMode && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-4xl px-4">
+           <NeumorphicCard className="p-6 bg-deep-green text-white border-none flex items-center justify-between gap-8 shadow-2xl">
+              <div className="flex items-center gap-6">
+                 <div className="w-12 h-12 rounded-cafe bg-white/10 flex items-center justify-center">
+                    <Gamepad2 />
+                 </div>
+                 <div>
+                    <h4 className="text-xl font-black uppercase tracking-tighter">Seleccionando Juegos</h4>
+                    <p className="text-[10px] font-black uppercase text-white/50">{selectedGames.length} / 2 juegos elegidos</p>
+                 </div>
+              </div>
+              
+              <div className="flex items-center gap-4 flex-1 overflow-x-auto">
+                 {selectedGames.map(g => (
+                   <div key={g.id} className="bg-white/10 px-4 py-2 rounded-full flex items-center gap-3 whitespace-nowrap">
+                      <span className="text-[10px] font-black uppercase">{g.name}</span>
+                      <X size={14} className="cursor-pointer hover:text-terracotta" onClick={() => removeGame(g.id)} />
+                   </div>
+                 ))}
+                 {selectedGames.length === 0 && <span className="text-[10px] italic text-white/30">Ningún juego seleccionado</span>}
+              </div>
+
+              <NeumorphicButton 
+                variant="flat" 
+                className="bg-white text-deep-green border-none px-8 py-3 font-black uppercase text-[10px] tracking-widest shadow-neu-flat"
+                onClick={() => navigate('/reserva')}
+              >
+                 Confirmar y Volver
+              </NeumorphicButton>
+           </NeumorphicCard>
+        </div>
+      )}
+
       <div className="flex flex-col mb-16 gap-8">
-        <div>
-          <h1 className="text-6xl font-black text-deep-green tracking-tighter leading-none mb-2 font-lora">Ludoteca</h1>
-          <p className="text-forest-green font-bold uppercase tracking-[0.3em] text-[10px] ml-1">Catálogo de Aventuras</p>
+        <div className="flex justify-between items-end">
+          <div>
+            <h1 className="text-6xl font-black text-deep-green tracking-tighter leading-none mb-2 font-lora">Ludoteca</h1>
+            <p className="text-forest-green font-bold uppercase tracking-[0.3em] text-[10px] ml-1">Catálogo de Aventuras</p>
+          </div>
+          {isSelectMode && (
+             <NeumorphicButton onClick={() => navigate('/reserva')} className="text-terracotta font-black text-[10px] uppercase tracking-widest">
+                 Cancelar Selección
+             </NeumorphicButton>
+          )}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-cafe-surface p-6 rounded-3xl shadow-neu-flat">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-cafe-surface p-6 rounded-3xl shadow-neu-flat border border-white/20">
           <div>
-            <label className="block text-xs font-black uppercase tracking-widest text-deep-green/60 mb-2 pl-4">Buscar</label>
+            <label className="block text-xs font-black uppercase tracking-widest text-deep-green/60 mb-2 pl-4">Buscar Aventuras</label>
             <input
               type="text"
               placeholder="Ej. Catan..."
@@ -253,29 +334,13 @@ export const GameCatalogView: React.FC = () => {
               className="w-full bg-cafe-bg text-deep-green px-6 py-3 rounded-full shadow-neu-pressed focus:outline-none focus:ring-2 focus:ring-forest-green/20 placeholder-deep-green/30 font-medium border-none h-[48px]"
             />
           </div>
-          <div>
+          <div className="space-y-2">
             <label className="block text-xs font-black uppercase tracking-widest text-deep-green/60 mb-2 pl-4">Categorías</label>
-            <Select
-              isMulti
-              options={categoryOptions}
-              value={selectedCategories}
-              onChange={setSelectedCategories as any}
-              placeholder="Categorías... (Todas)"
-              styles={selectStyles}
-              noOptionsMessage={() => "No hay más categorías"}
-            />
+            <Select isMulti options={categoryOptions} value={selectedCategories} onChange={setSelectedCategories as any} styles={selectStyles} placeholder="Filtrar por género..." />
           </div>
-          <div>
+          <div className="space-y-2">
             <label className="block text-xs font-black uppercase tracking-widest text-deep-green/60 mb-2 pl-4">Dificultad</label>
-            <Select
-              options={difficultyOptions}
-              value={selectedDifficulty}
-              onChange={setSelectedDifficulty as any}
-              placeholder="Dificultad..."
-              isClearable
-              styles={selectStyles}
-              noOptionsMessage={() => "No hay más dificultades"}
-            />
+            <Select options={difficultyOptions} value={selectedDifficulty} onChange={setSelectedDifficulty as any} styles={selectStyles} placeholder="Nivel de reto..." isClearable />
           </div>
         </div>
       </div>
@@ -284,32 +349,50 @@ export const GameCatalogView: React.FC = () => {
         {paginatedGames.map(game => (
           <GameItemCard key={game.id} game={game} />
         ))}
-        {paginatedGames.length === 0 && (
-          <div className="col-span-full text-center py-20">
-            <p className="text-xl font-black text-forest-green/40 italic">No se han encontrado juegos.</p>
-          </div>
-        )}
       </div>
 
       {totalPages > 1 && (
-        <div className="flex justify-center items-center mt-16 gap-4">
-          <NeumorphicButton
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className={`px-4 py-2 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            &lt; Anterior
+        <div className="flex justify-center items-center mt-16 gap-6">
+          <NeumorphicButton onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className={currentPage === 1 ? 'opacity-30' : ''}>
+            &larr; Prev
           </NeumorphicButton>
-          <span className="text-deep-green font-bold mx-4">
-            Página {currentPage} de {totalPages}
-          </span>
-          <NeumorphicButton
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className={`px-4 py-2 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            Siguiente &gt;
+          <span className="text-[10px] font-black text-deep-green/40 uppercase tracking-widest">Página {currentPage} de {totalPages}</span>
+          <NeumorphicButton onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className={currentPage === totalPages ? 'opacity-30' : ''}>
+            Next &rarr;
           </NeumorphicButton>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {showModal.show && showModal.game && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+           <NeumorphicCard className="w-full max-w-sm p-10 text-center space-y-8 animate-in zoom-in-95 duration-300">
+              <div className="w-20 h-20 bg-forest-green/10 rounded-full flex items-center justify-center mx-auto text-forest-green mb-4">
+                 <Check size={40} strokeWidth={3} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-black text-deep-green font-lora mb-2">Juego Seleccionado</h3>
+                <p className="text-forest-green text-sm font-medium italic">"{showModal.game.name}" se añadió a tu lista.</p>
+              </div>
+
+              <div className="space-y-4">
+                 {selectedGames.length < 2 && (
+                   <NeumorphicButton 
+                    variant="flat" 
+                    className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-forest-green"
+                    onClick={() => setShowModal({show: false, game: null})}
+                   >
+                     Reservar otro juego
+                   </NeumorphicButton>
+                 )}
+                 <NeumorphicButton 
+                    className="w-full py-4 text-[10px] font-black uppercase tracking-widest bg-forest-green text-white border-none shadow-neu-flat"
+                    onClick={() => navigate('/reserva')}
+                 >
+                    Continuar con la Reserva
+                 </NeumorphicButton>
+              </div>
+           </NeumorphicCard>
         </div>
       )}
     </div>

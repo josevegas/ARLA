@@ -12,6 +12,7 @@ import { MenuView } from './views/MenuView';
 import { ReservationView } from './views/ReservationView';
 import { HomeView } from './views/HomeView';
 import { AdminReservationsView } from './views/AdminReservationsView';
+import { VerifyView } from './views/VerifyView';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode, roles?: string[] }> = ({ children, roles }) => {
   const { user } = useAuth();
@@ -30,6 +31,7 @@ const AppContent: React.FC = () => {
           <Route path="/" element={<HomeView />} />
           <Route path="/login" element={<LoginView />} />
           <Route path="/register" element={<RegisterView />} />
+          <Route path="/verify" element={<VerifyView />} />
           <Route path="/ludoteca" element={<GameCatalogView />} />
           <Route path="/menu" element={<MenuView />} />
           <Route path="/reserva" element={<ReservationView />} />

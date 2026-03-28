@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
-import { useAuth } from '../context/AuthContext';
 
 export const RegisterView: React.FC = () => {
-  const { register } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -29,15 +27,22 @@ export const RegisterView: React.FC = () => {
       return;
     }
     try {
-      await register({
-        email: formData.email,
-        password: formData.password,
-        name: formData.name,
-        lastName: formData.lastName,
-        phone: formData.phone,
-        birthday: formData.birthday
+      const res = await fetch('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+          lastName: formData.lastName,
+          phone: formData.phone,
+          birthday: formData.birthday
+        }),
       });
-      navigate('/');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      navigate('/verify', { state: { email: formData.email } });
     } catch (err: any) {
       setError(err.message || 'Error al registrarse');
     }

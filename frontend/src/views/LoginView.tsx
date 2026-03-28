@@ -18,6 +18,10 @@ export const LoginView: React.FC = () => {
       await login(email, password);
       navigate('/');
     } catch (err: any) {
+      if (err.message.includes('not verified')) {
+        setError('Tu cuenta no está verificada.');
+        return;
+      }
       setError(err.message || 'Credenciales inválidas');
     }
   };

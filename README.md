@@ -123,3 +123,9 @@ Consulta `AGENTS.md` para definiciones de agentes especializados en diferentes a
 - **Arquitectura de Seguridad**: Implementación de rutas protegidas (`ProtectedRoute`) y redirecciones automáticas tras el cierre de sesión.
 - **Evolución del Modelo de Datos**: Incorporación de estados de reserva (`PENDING`, `CONFIRMED`, `CANCELLED`) para un control granular del flujo de negocio.
 - **Optimización Logística del Panel de Reservas**: Rediseño de la vista administrativa (`/admin/reservas`) para agrupar reservas por mesa física. Se implementó una visualización unificada de jugadores y juegos, cálculo automático de aforo libre por mesa y un sistema de confirmación de asistencia individual mediante botones dinámicos para cada jugador.
+- **Autenticación con Verificación por Correo**: Implementado flujo de registro con envío de código de 6 dígitos (expiración 15 min). La cuenta requiere activación vía `/verify` antes de permitir el login (`emailVerified`).
+- **Reserva en Dos Etapas con Selección Global**:
+    - **Step 1**: Configuración de mesa, fecha y aforo.
+    - **Step 2**: Selección de mesa basada en disponibilidad real + **Modo Selección de Juegos** en la Ludoteca.
+    - **Integración con Ludoteca**: Los usuarios navegan al catálogo completo de juegos para elegir hasta 2 títulos. La selección se persiste entre rutas usando `localStorage`.
+    - **Regla de Negocío**: Un usuario no puede generar duplicados de reservas activas para la misma mesa y fecha.

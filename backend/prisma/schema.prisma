@@ -33,11 +33,20 @@ model User {
   phone         String?
   birthday      String?  // Formato DD/MM
   role          Role     @default(CLIENT)
+  emailVerified Boolean  @default(false)
   visitHistory  Visit[]
   gameHistory   GameHistory[]
   reservations  Reservation[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model VerificationCode {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
 
 model GameHistory {

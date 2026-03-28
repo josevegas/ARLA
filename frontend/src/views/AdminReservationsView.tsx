@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NeumorphicCard } from '../components/NeumorphicCard';
-import { NeumorphicButton } from '../components/NeumorphicButton';
 import { useAuth } from '../context/AuthContext';
-import { CheckCircle, Clock, XCircle, Calendar as CalendarIcon, Users, Filter, Hash } from 'lucide-react';
+import { CheckCircle, Calendar as CalendarIcon, Users, Filter, Hash } from 'lucide-react';
 
 interface TableWithReservations {
   id: string;

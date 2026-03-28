@@ -14,6 +14,19 @@ export class ReservationService {
     shareTable?: boolean;
     gameIds?: string[];
   }) {
+    // Business Rule: One active reservation per user/table/date
+    if (data.userId) {
+      const existing = await prisma.reservation.findFirst({
+        where: {
+          userId: data.userId,
+          tableId: data.tableId,
+          date: data.date,
+          status: { not: 'CANCELLED' }
+        }
+      });
+      if (existing) throw new Error('Ya tienes una reserva activa para esta mesa en la fecha seleccionada.');
+    }
+
     return await prisma.reservation.create({ 
       data: {
         userId: data.userId,
