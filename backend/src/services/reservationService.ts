@@ -173,7 +173,9 @@ export class ReservationService {
 
   async updateReservation(id: string, data: any) {
     const { gameIds, ...rest } = data;
-    return await prisma.reservation.update({
+    const oldReservation = await prisma.reservation.findUnique({ where: { id } });
+    
+    const updated = await prisma.reservation.update({
       where: { id },
       data: {
         ...rest,
@@ -182,6 +184,21 @@ export class ReservationService {
         } : undefined
       },
     });
+
+    if (rest.status === 'CONFIRMED' && oldReservation?.status !== 'CONFIRMED' && updated.userId) {
+      await prisma.visit.create({
+        data: {
+          userId: updated.userId,
+          date: updated.date,
+        }
+      });
+      await prisma.user.update({
+        where: { id: updated.userId },
+        data: { points: { increment: 10 } }
+      });
+    }
+
+    return updated;
   }
 
   async deleteReservation(id: string) {

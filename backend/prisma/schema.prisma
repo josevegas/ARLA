@@ -34,9 +34,11 @@ model User {
   birthday      String?  // Formato DD/MM
   role          Role     @default(CLIENT)
   emailVerified Boolean  @default(false)
+  points        Int      @default(0)
   visitHistory  Visit[]
   gameHistory   GameHistory[]
   reservations  Reservation[]
+  userSales     Venta[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -128,8 +130,11 @@ model Game {
   difficultyId  String?
   difficulty    Difficulty?    @relation(fields: [difficultyId], references: [id])
   duration      Int?          // in minutes
-  stock         Int           @default(1)
+  stock         Int           @default(1) // STOCK PARA RESERVA
+  stockVenta    Int           @default(0) 
+  price         Float?        // PRECIO DE VENTA
   gameHistory   GameHistory[]
+  itemSales     ItemVenta[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   reservations  Reservation[] @relation("ReservationGames")
@@ -167,3 +172,23 @@ model Reservation {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Venta {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  total       Float
+  items       ItemVenta[]
+  createdAt   DateTime    @default(now())
+}
+
+model ItemVenta {
+  id         String   @id @default(cuid())
+  ventaId    String
+  venta      Venta    @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+  gameId     String
+  game       Game     @relation(fields: [gameId], references: [id])
+  quantity   Int
+  priceUnit  Float
+  subtotal   Float
+}

@@ -2,8 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import { LoginView } from './views/LoginView';
-import { UserHistoryView } from './views/UserHistoryView';
 import { AdminManagementView } from './views/AdminManagementView';
 import { RegisterView } from './views/RegisterView';
 import { ProfileView } from './views/ProfileView';
@@ -13,6 +13,7 @@ import { ReservationView } from './views/ReservationView';
 import { HomeView } from './views/HomeView';
 import { AdminReservationsView } from './views/AdminReservationsView';
 import { VerifyView } from './views/VerifyView';
+import { CartView } from './views/CartView';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode, roles?: string[] }> = ({ children, roles }) => {
   const { user } = useAuth();
@@ -35,16 +36,12 @@ const AppContent: React.FC = () => {
           <Route path="/ludoteca" element={<GameCatalogView />} />
           <Route path="/menu" element={<MenuView />} />
           <Route path="/reserva" element={<ReservationView />} />
+          <Route path="/carrito" element={<CartView />} />
           
           {/* Protected Routes */}
           <Route path="/perfil" element={
             <ProtectedRoute>
               <ProfileView />
-            </ProtectedRoute>
-          } />
-          <Route path="/historial" element={
-            <ProtectedRoute>
-              <UserHistoryView />
             </ProtectedRoute>
           } />
 
@@ -60,7 +57,6 @@ const AppContent: React.FC = () => {
             </ProtectedRoute>
           } />
 
-          {/* 404 Redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
@@ -71,7 +67,9 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <AppContent />
+      <CartProvider>
+        <AppContent />
+      </CartProvider>
     </AuthProvider>
   );
 };

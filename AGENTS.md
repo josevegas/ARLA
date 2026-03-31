@@ -9,7 +9,7 @@ Este archivo define agentes especializados para el desarrollo y mantenimiento de
 
 ## Agente Backend Developer
 - **Propósito**: Manejar el servidor, base de datos y lógica de negocio.
-- **Habilidades**: Node.js, Express, TypeScript, Prisma, PostgreSQL, **Seguridad JWT**, **Validación con Zod**, Morgan/Winston logging.
+- **Habilidades**: Node.js, Express, TypeScript, Prisma, PostgreSQL, **Seguridad JWT**, **Validación con Zod**, **Nodemailer/SMTP**, Morgan/Winston logging.
 - **Activación**: Archivos en `/backend/`.
 
 ## Agente Frontend Developer

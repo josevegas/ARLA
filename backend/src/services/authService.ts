@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { PrismaClient, Role } from '@prisma/client';
+import { sendVerificationEmail } from './mailService';
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
@@ -28,10 +29,19 @@ export class AuthService {
       }
     });
 
-    // Mock email sending: Log to console
-    console.log(`[EMAIL MOCK] Verification code for ${user.email}: ${code}`);
-
-    return { message: 'Verification code sent to email', email: user.email };
+    // Send Real Email
+    try {
+      await sendVerificationEmail(user.email, code);
+      return { message: 'Verification code sent to email', email: user.email };
+    } catch (error) {
+      console.error('Error sending verification email during registration:', error);
+      // Even if email fails, user is created, but we should inform about the failure
+      return { 
+        message: 'Registration successful but failed to send email. Please request a new code.', 
+        email: user.email,
+        error: true
+      };
+    }
   }
 
   async verifyCode(email: string, code: string) {
@@ -41,7 +51,7 @@ export class AuthService {
 
     if (!record) throw new Error('Invalid or expired verification code');
 
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { email },
       data: { emailVerified: true }
     });
@@ -49,7 +59,14 @@ export class AuthService {
     // Clear used code
     await prisma.verificationCode.delete({ where: { id: record.id } });
 
-    return { message: 'Account verified successfully' };
+    // Auto login
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    return { message: 'Account verified successfully', user, token };
   }
 
   async login(email: string, pass: string) {
@@ -74,11 +91,30 @@ export class AuthService {
     return await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        visitHistory: true,
-        gameHistory: {
-          include: { game: true }
+        visitHistory: {
+          orderBy: { date: 'desc' },
+          take: 10
         }
       }
     });
+  }
+
+  async resendVerificationCode(email: string) {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) throw new Error('Usuario no encontrado');
+    if (user.emailVerified) throw new Error('La cuenta ya está verificada');
+
+    // Generate NEW 6-digit verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    // Update or Create
+    await prisma.verificationCode.deleteMany({ where: { email } });
+    await prisma.verificationCode.create({
+      data: { email, code, expiresAt }
+    });
+
+    await sendVerificationEmail(email, code);
+    return { message: 'Se ha enviado un nuevo código de verificación' };
   }
 }

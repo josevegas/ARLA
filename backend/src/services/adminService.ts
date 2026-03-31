@@ -107,9 +107,62 @@ export class AdminService {
   }
 
   async updateReservationStatus(id: string, status: 'PENDING' | 'CONFIRMED' | 'CANCELLED') {
-    return await prisma.reservation.update({
+    const oldRes = await prisma.reservation.findUnique({ where: { id } });
+    const updated = await prisma.reservation.update({
       where: { id },
       data: { status }
     });
+
+    if (status === 'CONFIRMED' && oldRes?.status !== 'CONFIRMED' && updated.userId) {
+       await prisma.visit.create({
+         data: {
+           userId: updated.userId,
+           date: updated.date,
+         }
+       });
+       await prisma.user.update({
+         where: { id: updated.userId },
+         data: { points: { increment: 10 } }
+       });
+    }
+    return updated;
+  }
+
+  async purchaseGames(userId: string, cartItems: { gameId: string, quantity: number }[]) {
+     let total = 0;
+     const itemsToCreate = [];
+
+     for (const item of cartItems) {
+        const game = await prisma.game.findUnique({ where: { id: item.gameId } });
+        if (!game || !game.price) throw new Error(`Juego ${item.gameId} no disponible para venta`);
+        if (game.stockVenta < item.quantity) throw new Error(`Stock insuficiente para ${game.name}`);
+
+        const subtotal = game.price * item.quantity;
+        total += subtotal;
+
+        itemsToCreate.push({
+           gameId: game.id,
+           quantity: item.quantity,
+           priceUnit: game.price,
+           subtotal
+        });
+
+        // Reducir stock
+        await prisma.game.update({
+           where: { id: game.id },
+           data: { stockVenta: { decrement: item.quantity } }
+        });
+     }
+
+     return await prisma.venta.create({
+        data: {
+           userId,
+           total,
+           items: {
+              create: itemsToCreate
+           }
+        },
+        include: { items: { include: { game: true } } }
+     });
   }
 }

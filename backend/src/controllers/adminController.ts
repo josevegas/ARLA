@@ -193,3 +193,13 @@ export const deleteTable = async (req: Request, res: Response) => {
   }
 };
 
+export const purchaseGames = async (req: Request, res: Response) => {
+  try {
+    const { userId, cartItems } = req.body;
+    const result = await adminService.purchaseGames(userId, cartItems);
+    res.status(201).json(result);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+

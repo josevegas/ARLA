@@ -128,4 +128,4 @@ Consulta `AGENTS.md` para definiciones de agentes especializados en diferentes a
     - **Step 1**: Configuración de mesa, fecha y aforo.
     - **Step 2**: Selección de mesa basada en disponibilidad real + **Modo Selección de Juegos** en la Ludoteca.
     - **Integración con Ludoteca**: Los usuarios navegan al catálogo completo de juegos para elegir hasta 2 títulos. La selección se persiste entre rutas usando `localStorage`.
-    - **Regla de Negocío**: Un usuario no puede generar duplicados de reservas activas para la misma mesa y fecha.
+    - **Integración de Nodemailer**: Implementado sistema de envío real de correos electrónicos para la verificación de cuentas. Se configuró un servicio de mensajería con soporte para SMTP, plantillas HTML personalizadas y manejo de errores en el proceso de registro.

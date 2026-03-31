@@ -40,3 +40,13 @@ export const getProfile = async (req: any, res: Response) => {
     res.status(404).json({ message: error.message });
   }
 };
+
+export const resendVerification = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    const result = await authService.resendVerificationCode(email);
+    res.json(result);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};

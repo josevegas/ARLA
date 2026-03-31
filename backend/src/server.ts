@@ -7,6 +7,7 @@ import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
 import userRoutes from './routes/user';
 import reservationRoutes from './routes/reservations';
+import gamesRoutes from './routes/games';
 import { getPromotions } from './controllers/adminController';
 import { errorHandler } from './middlewares/errorHandler';
 
@@ -41,6 +42,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reservations', reservationRoutes);
+app.use('/api/games', gamesRoutes);
 app.get('/api/promociones', getPromotions);
 
 // Health Check

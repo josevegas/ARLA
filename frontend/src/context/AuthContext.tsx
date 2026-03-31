@@ -8,11 +8,14 @@ interface User {
   lastName?: string;
   phone?: string;
   birthday?: string;
+  points?: number;
 }
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  setUser: (user: User | null) => void;
+  setToken: (token: string | null) => void;
   login: (email: string, pass: string) => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => void;
@@ -26,7 +29,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     if (token) {
-      // Potentially fetch profile here
       const storedUser = localStorage.getItem('user');
       if (storedUser) setUser(JSON.parse(storedUser));
     }
@@ -62,9 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const errorData = await response.json();
       throw new Error(errorData.errors?.[0]?.message || errorData.message || 'Registration failed');
     }
-
-    // Auto-login after register
-    await login(userData.email, userData.password);
+    // No auto-login here, redirection to verify is handled in the view
   };
 
   const logout = () => {
@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, setUser, setToken, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
