@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import Select from 'react-select';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
-import { Check, Gamepad2, ShoppingCart, Plus, Minus, Info } from 'lucide-react';
+import { Check, Gamepad2, ShoppingCart, Plus, Minus, Info, Users, Clock, Star } from 'lucide-react';
 
 interface Category { id: string; name: string; }
 interface DifficultyLevel { id: string; name: string; }
@@ -24,6 +24,126 @@ interface Game {
   stockVenta: number; // Stock físico para venta
   price: number | null; // Precio de venta
 }
+
+// GameCard component for individual flip state management
+const GameCard: React.FC<{
+  game: Game;
+  viewMode: 'BUY' | 'RESERVE';
+  isSelected: boolean;
+  onAddToCart: (game: Game) => void;
+  onToggleSelect: (game: Game) => void;
+}> = ({ game, viewMode, isSelected, onAddToCart, onToggleSelect }) => {
+  const [flipped, setFlipped] = useState(false);
+
+  return (
+    <div className="h-[580px] relative transition-all" style={{ perspective: 1000 }} onClick={() => setFlipped(!flipped)}>
+       <div className={`relative w-full h-full text-center transition-all duration-700 [transform-style:preserve-3d] ${flipped ? '[transform:rotateY(180deg)]' : ''}`}>
+          {/* Front */}
+          <NeumorphicCard className={`absolute inset-0 [backface-visibility:hidden] p-8 flex flex-col justify-between ${isSelected ? 'ring-2 ring-terracotta border-terracotta shadow-2xl scale-[1.02]' : 'border-white/10 shadow-neu-flat'}`}>
+             <div className="h-64 bg-cafe-bg rounded-cafe shadow-neu-pressed flex items-center justify-center relative overflow-hidden flex-shrink-0">
+                {game.imageUrl ? <img src={game.imageUrl} alt={game.name} className="w-full h-full object-cover" /> : <Gamepad2 size={60} className="opacity-10 text-deep-green" />}
+                {viewMode === 'BUY' && (
+                   <div className="absolute top-4 right-4 bg-terracotta text-white px-4 py-2 rounded-full font-black text-sm shadow-xl border border-white/20">${game.price}</div>
+                )}
+                {isSelected && (
+                   <div className="absolute inset-0 bg-terracotta/40 backdrop-blur-[2px] flex items-center justify-center animate-in fade-in duration-300">
+                      <Check size={80} className="text-white drop-shadow-lg" />
+                   </div>
+                )}
+             </div>
+             
+             <div className="flex-1 flex flex-col pt-6 gap-4">
+                <h3 className="text-3xl font-black text-deep-green font-lora leading-tight tracking-tighter">{game.name}</h3>
+                
+                <div className="flex flex-wrap justify-center gap-1.5">
+                   {game.categories.map(c => (
+                     <span key={c.id} className="text-[9px] font-black px-3 py-1 bg-forest-green/10 text-forest-green uppercase rounded-full tracking-wider">
+                        {c.name}
+                     </span>
+                   ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mt-auto pt-6 border-t border-deep-green/5">
+                   <div className="flex flex-col items-center gap-1">
+                      <div className="w-10 h-10 rounded-full bg-cafe-bg shadow-neu-pressed flex items-center justify-center text-deep-green/40">
+                         <Users size={16} />
+                      </div>
+                      <span className="text-[10px] font-black text-deep-green/40 uppercase tracking-widest">{game.minPlayers}-{game.maxPlayers} Jug.</span>
+                   </div>
+                   <div className="flex flex-col items-center gap-1">
+                      <div className="w-10 h-10 rounded-full bg-cafe-bg shadow-neu-pressed flex items-center justify-center text-deep-green/40">
+                         <Clock size={16} />
+                      </div>
+                      <span className="text-[10px] font-black text-deep-green/40 uppercase tracking-widest">{game.duration} Min</span>
+                   </div>
+                </div>
+             </div>
+
+             <div className="flex items-center justify-center gap-2 pt-4 opacity-30 text-[9px] font-black uppercase tracking-[0.2em] animate-pulse">
+                <Info size={12}/> Ver Mas Detalles
+             </div>
+          </NeumorphicCard>
+
+          {/* Back */}
+          <NeumorphicCard className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] p-12 flex flex-col justify-between shadow-2xl">
+             <div className="space-y-6 flex-1">
+                <h4 className="text-3xl font-black text-deep-green font-lora tracking-tighter border-b-4 border-terracotta/20 pb-4 inline-block">{game.name}</h4>
+                <p className="text-base font-bold text-deep-green/80 leading-relaxed text-left line-clamp-[8] bg-white/30 p-6 rounded-3xl shadow-neu-pressed italic">
+                   {game.description || 'Sin descripción disponible para este increíble juego de nuestra ludoteca.'}
+                </p>
+             </div>
+             
+             <div className="grid grid-cols-2 gap-6 py-8 border-y border-deep-green/10">
+                <div className="flex flex-col items-start gap-1">
+                   <p className="text-[9px] font-black text-deep-green/30 uppercase tracking-[0.2em]">Dificultad</p>
+                   <div className="flex items-center gap-2 bg-forest-green/5 px-3 py-1.5 rounded-full">
+                      <Star size={12} className="text-forest-green fill-forest-green" />
+                      <p className="text-xs font-black text-forest-green uppercase">{game.difficulty?.name || 'Media'}</p>
+                   </div>
+                </div>
+                <div className="flex flex-col items-start gap-1">
+                   <p className="text-[9px] font-black text-deep-green/30 uppercase tracking-[0.2em]">
+                      {viewMode === 'RESERVE' ? 'Mesa (Ludoteca)' : 'Venta (Tienda)'}
+                   </p>
+                   <div className="flex items-center gap-2 bg-terracotta/5 px-3 py-1.5 rounded-full">
+                      <div className={`w-2 h-2 rounded-full animate-pulse ${((viewMode === 'RESERVE' ? game.stock : game.stockVenta) > 0) ? 'bg-forest-green' : 'bg-terracotta'}`} />
+                      <p className="text-xs font-black text-deep-green/60 uppercase">
+                         {viewMode === 'RESERVE' ? game.stock : game.stockVenta} Unidades
+                      </p>
+                   </div>
+                </div>
+             </div>
+
+             <div className="pt-8">
+                {viewMode === 'BUY' ? (
+                  <NeumorphicButton 
+                    className="w-full bg-forest-green text-white py-5 font-black uppercase text-[11px] tracking-[0.2em] shadow-neu-flat border-none group overflow-hidden relative"
+                    onClick={(e) => { e.stopPropagation(); onAddToCart(game); }}
+                  >
+                     <span className="relative z-10 flex items-center justify-center gap-3">
+                        <ShoppingCart size={18} /> Agregar Al Carrito
+                     </span>
+                  </NeumorphicButton>
+                ) : (
+                  <NeumorphicButton 
+                     className={`w-full py-5 font-black uppercase text-[11px] tracking-[0.2em] border-none shadow-neu-flat transition-all ${isSelected ? 'bg-terracotta text-white' : 'bg-forest-green text-white hover:scale-[1.02]'}`}
+                     onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleSelect(game);
+                     }}
+                  >
+                     <span className="flex items-center justify-center gap-3">
+                        {isSelected ? <Minus size={18}/> : <Plus size={18}/>}
+                        {isSelected ? 'Quitar De Mi Mesa' : 'Elegir Para Mesa'}
+                     </span>
+                  </NeumorphicButton>
+                )}
+             </div>
+          </NeumorphicCard>
+       </div>
+    </div>
+  );
+};
 
 export const GameCatalogView: React.FC = () => {
   const [games, setGames] = useState<Game[]>([]);
@@ -213,77 +333,24 @@ export const GameCatalogView: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
-        {paginatedGames.map(game => {
-          const [flipped, setFlipped] = useState(false);
-          const isSelected = selectedGames.some(sg => sg.id === game.id);
-          return (
-            <div key={game.id} className="h-[520px] relative transition-all" style={{ perspective: 1000 }} onClick={() => setFlipped(!flipped)}>
-               <div className={`relative w-full h-full text-center transition-all duration-700 [transform-style:preserve-3d] ${flipped ? '[transform:rotateY(180deg)]' : ''}`}>
-                  {/* Front */}
-                  <NeumorphicCard className={`absolute inset-0 [backface-visibility:hidden] p-8 flex flex-col justify-between ${isSelected ? 'ring-2 ring-terracotta border-terracotta' : 'border-white/10'}`}>
-                     <div className="h-60 bg-cafe-bg rounded-cafe shadow-neu-pressed flex items-center justify-center relative overflow-hidden flex-shrink-0">
-                        {game.imageUrl ? <img src={game.imageUrl} alt={game.name} className="w-full h-full object-cover" /> : <Gamepad2 size={60} className="opacity-10" />}
-                        {viewMode === 'BUY' && (
-                           <div className="absolute top-4 right-4 bg-terracotta text-white px-4 py-2 rounded-full font-black text-sm shadow-xl">${game.price}</div>
-                        )}
-                        {isSelected && (
-                           <div className="absolute inset-0 bg-terracotta/20 backdrop-blur-[2px] flex items-center justify-center"><Check size={60} className="text-white" /></div>
-                        )}
-                     </div>
-                     <div className="flex-1 flex flex-col justify-center py-6">
-                        <h3 className="text-3xl font-black text-deep-green font-lora leading-tight">{game.name}</h3>
-                        <div className="flex flex-wrap justify-center gap-1 mt-3">
-                           {game.categories.map(c => <span key={c.id} className="text-[8px] font-black px-2 py-0.5 bg-forest-green/10 text-forest-green uppercase rounded-full">{c.name}</span>)}
-                        </div>
-                     </div>
-                     <div className="flex items-center justify-center gap-2 opacity-30 text-[10px] font-black uppercase tracking-widest"><Info size={12}/> Ver detalles</div>
-                  </NeumorphicCard>
-
-                  {/* Back */}
-                  <NeumorphicCard className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] p-10 flex flex-col justify-between">
-                     <div className="space-y-4">
-                        <h4 className="text-xl font-black text-deep-green">{game.name}</h4>
-                        <p className="text-xs text-deep-green/60 leading-relaxed max-h-40 overflow-y-auto pr-2">{game.description || 'Sin descripción disponible.'}</p>
-                     </div>
-                     
-                     <div className="grid grid-cols-2 gap-4 py-6 border-y border-deep-green/5">
-                        <div>
-                           <p className="text-[8px] font-black text-deep-green/30 uppercase">Uso</p>
-                           <p className="text-xs font-bold">{game.stock} Dispo. Reserva</p>
-                        </div>
-                        <div>
-                           <p className="text-[8px] font-black text-deep-green/30 uppercase">Venta</p>
-                           <p className="text-xs font-bold">{game.stockVenta} En Stock</p>
-                        </div>
-                     </div>
-
-                     <div className="pt-6">
-                        {viewMode === 'BUY' ? (
-                          <NeumorphicButton 
-                            className="w-full bg-forest-green text-white py-4 font-black uppercase text-[10px] tracking-widest shadow-neu-flat border-none"
-                            onClick={(e) => { e.stopPropagation(); handleAddToCart(game); }}
-                          >
-                             Agregar al carrito
-                          </NeumorphicButton>
-                        ) : (
-                          <NeumorphicButton 
-                             className={`w-full py-4 font-black uppercase text-[10px] tracking-widest border-none ${isSelected ? 'bg-terracotta text-white' : 'bg-forest-green text-white shadow-neu-flat'}`}
-                             onClick={(e) => {
-                                e.stopPropagation();
-                                if (isSelected) setSelectedGames(prev => prev.filter(sg => sg.id !== game.id));
-                                else handleSelectGame(game);
-                             }}
-                          >
-                             {isSelected ? 'Quitar de lista' : 'Seleccionar p/ reserva'}
-                          </NeumorphicButton>
-                        )}
-                     </div>
-                  </NeumorphicCard>
-               </div>
-            </div>
-          )
-        })}
+        {paginatedGames.map(game => (
+          <GameCard 
+            key={game.id} 
+            game={game} 
+            viewMode={viewMode} 
+            isSelected={selectedGames.some(sg => sg.id === game.id)}
+            onAddToCart={handleAddToCart}
+            onToggleSelect={(g) => {
+              if (selectedGames.some(sg => sg.id === g.id)) {
+                setSelectedGames(prev => prev.filter(sg => sg.id !== g.id));
+              } else {
+                handleSelectGame(g);
+              }
+            }}
+          />
+        ))}
       </div>
+
 
       {totalPages > 1 && (
         <div className="flex justify-center items-center mt-16 gap-6">

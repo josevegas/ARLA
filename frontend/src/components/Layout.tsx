@@ -76,7 +76,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </NeumorphicButton>
               </Link>
 
-              {(user.role === 'ADMIN' || user.role === 'SUPERADMIN') && (
+              {user && (user.role === 'ADMIN' || user.role === 'SUPERADMIN' || String(user.role).toUpperCase() === 'ADMIN' || String(user.role).toUpperCase() === 'SUPERADMIN') && (
                 <div className="flex gap-1 p-1 rounded-full bg-deep-green/5 shadow-neu-pressed">
                    <Link to="/admin">
                     <NeumorphicButton 

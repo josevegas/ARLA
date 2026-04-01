@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 import { useAuth } from '../context/AuthContext';
-import { Search, ChevronLeft, ChevronRight, Edit3, Trash2, Package, Tag } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Edit3, Trash2, Package, Tag, Plus } from 'lucide-react';
 
 interface Category { id: string; name: string; }
 interface DifficultyLevel { id: string; name: string; }

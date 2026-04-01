@@ -33,7 +33,7 @@ export class AdminService {
 
   // Games
   async createGame(data: any) {
-    const { categoryIds, ...gameData } = data;
+    const { categoryIds, categories, difficulty, ...gameData } = data;
     return await prisma.game.create({
       data: {
         ...gameData,
@@ -52,7 +52,7 @@ export class AdminService {
   }
 
   async updateGame(id: string, data: any) {
-    const { categoryIds, ...gameData } = data;
+    const { id: _, categoryIds, categories, difficulty, createdAt, updatedAt, ...gameData } = data;
     return await prisma.game.update({
       where: { id },
       data: {

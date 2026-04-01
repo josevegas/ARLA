@@ -24,6 +24,8 @@ export const gameSchema = z.object({
     difficultyId: z.string().nullish(),
     duration: z.coerce.number().int().positive().nullish(),
     stock: z.coerce.number().int().nonnegative().optional(),
+    stockVenta: z.coerce.number().int().nonnegative().optional(),
+    price: z.coerce.number().positive().nullish(),
   }).passthrough(),
   params: z.any().optional(),
   query: z.any().optional(),
