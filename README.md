@@ -137,3 +137,9 @@ Consulta `AGENTS.md` para definiciones de agentes especializados en diferentes a
 - **Refactorización de Ludoteca (Estabilidad)**: Se corrigió un error crítico en el renderizado del catálogo que causaba pantallas en blanco debido a violaciones de hooks de React. Se extrajo la lógica de cada juego a un componente `GameCard` independiente para gestionar de forma limpia el estado de rotación (flip).
 - **Correcciones en Panel de Admin**: Se solucionaron errores de importación de iconos (`Plus`) que impedían la carga del panel administrativo. Se robusteció la validación de roles en la barra de navegación para asegurar que los enlaces de "Admin" y "Reservas" aparezcan correctamente para usuarios autorizados (`ADMIN`, `SUPERADMIN`).
 - **Mejora de Robustez en Navegación**: Se optimizó la transición entre la vista de reservas y el catálogo de juegos (modo selección), asegurando que el filtrado por stock funcione correctamente y que la navegación sea fluida mediante la persistencia de estados en `localStorage`.
+- **Integración de Cloudflare R2 y Carga de Imágenes**: 
+    - Implementado `storageService.ts` para la carga asíncrona de imágenes de juegos directamente a un bucket de Cloudflare R2.
+    - Configurado middleware `multer` en el backend para gestionar peticiones `multipart/form-data`.
+    - Actualizada la vista de administración de juegos con previsualización de imágenes en tiempo real y soporte para carga de archivos físicos.
+    - Refactorizados los esquemas de validación Zod para procesar correctamente datos complejos (como arrays de categorías) enviados vía `FormData`.
+    - Asegurada la persistencia de imágenes existentes durante la edición de registros si no se selecciona un nuevo archivo.

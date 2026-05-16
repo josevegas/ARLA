@@ -10,6 +10,7 @@ import {
 import { auth, authorize } from '../middlewares/auth';
 import { validate } from '../middlewares/validation';
 import { menuItemSchema, promotionSchema, gameSchema, tableSchema } from '../schemas/adminSchema';
+import { upload } from '../middlewares/upload';
 
 const router = Router();
 
@@ -34,8 +35,8 @@ router.post('/promotions', validate(promotionSchema), createPromotion);
 router.put('/promotions/:id', validate(promotionSchema), updatePromotion);
 router.delete('/promotions/:id', deletePromotion);
 
-router.post('/games', validate(gameSchema), createGame);
-router.put('/games/:id', validate(gameSchema), updateGame);
+router.post('/games', upload.single('image'), validate(gameSchema), createGame);
+router.put('/games/:id', upload.single('image'), validate(gameSchema), updateGame);
 router.delete('/games/:id', deleteGame);
 
 router.get('/tables', getTables);

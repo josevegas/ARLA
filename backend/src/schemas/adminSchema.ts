@@ -17,7 +17,12 @@ export const gameSchema = z.object({
   body: z.object({
     name: z.string().min(2),
     description: z.string().nullish(),
-    categoryIds: z.array(z.string()).optional(),
+    categoryIds: z.preprocess((val) => {
+      if (typeof val === 'string') {
+        try { return JSON.parse(val); } catch { return val; }
+      }
+      return val;
+    }, z.array(z.string())).optional(),
     imageUrl: z.string().nullish(),
     minPlayers: z.coerce.number().int().positive().nullish(),
     maxPlayers: z.coerce.number().int().positive().nullish(),
@@ -25,7 +30,7 @@ export const gameSchema = z.object({
     duration: z.coerce.number().int().positive().nullish(),
     stock: z.coerce.number().int().nonnegative().optional(),
     stockVenta: z.coerce.number().int().nonnegative().optional(),
-    price: z.coerce.number().positive().nullish(),
+    price: z.coerce.number().nonnegative().nullish(),
   }).passthrough(),
   params: z.any().optional(),
   query: z.any().optional(),

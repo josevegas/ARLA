@@ -18,6 +18,7 @@ export const validate = (schema: ZodSchema) => (
     next();
   } catch (error) {
     if (error instanceof ZodError) {
+      console.error(`[Validation Error]:`, JSON.stringify(error.errors, null, 2));
       res.status(400).json({ errors: error.errors });
     } else {
       next(error);

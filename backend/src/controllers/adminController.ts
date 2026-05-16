@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { AdminService } from '../services/adminService';
+import { uploadToR2 } from '../services/storageService';
 
 const adminService = new AdminService();
 
@@ -105,7 +106,11 @@ export const updateReservationStatus = async (req: Request, res: Response) => {
 // Games
 export const createGame = async (req: Request, res: Response) => {
   try {
-    const game = await adminService.createGame(req.body);
+    let gameData = { ...req.body };
+    if (req.file) {
+      gameData.imageUrl = await uploadToR2(req.file);
+    }
+    const game = await adminService.createGame(gameData);
     res.status(201).json(game);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
@@ -123,9 +128,14 @@ export const getGames = async (_req: Request, res: Response) => {
 
 export const updateGame = async (req: Request, res: Response) => {
   try {
-    const game = await adminService.updateGame(req.params.id, req.body);
+    let gameData = { ...req.body };
+    if (req.file) {
+      gameData.imageUrl = await uploadToR2(req.file);
+    }
+    const game = await adminService.updateGame(req.params.id, gameData);
     res.json(game);
   } catch (error: any) {
+    console.error(`[updateGame Error]:`, error);
     res.status(400).json({ message: error.message });
   }
 };
