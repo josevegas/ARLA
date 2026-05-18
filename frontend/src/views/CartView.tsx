@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 import { Trash2, ShoppingBag, ArrowLeft, Plus, Minus, CheckCircle2 } from 'lucide-react';
+import { API_URL } from '../config';
 
 export const CartView: React.FC = () => {
   const { items, removeFromCart, updateQuantity, total, clearCart } = useCart();
@@ -20,7 +21,7 @@ export const CartView: React.FC = () => {
     setError('');
     
     try {
-      const res = await fetch('http://localhost:3000/api/games/purchase', {
+      const res = await fetch(`${API_URL}/games/purchase`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

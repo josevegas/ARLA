@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { 
+import {
   createMenuItem, getMenuItems, updateMenuItem, deleteMenuItem,
   createPromotion, getPromotions, updatePromotion, deletePromotion,
   createGame, getGames, updateGame, deleteGame,
@@ -12,7 +12,7 @@ import { validate } from '../middlewares/validation';
 import { menuItemSchema, promotionSchema, gameSchema, tableSchema } from '../schemas/adminSchema';
 import { upload } from '../middlewares/upload';
 
-const router = Router();
+const router: Router = Router();
 
 // Publicly readable menu and games (optional, depending on requirement, but user asked for CRUD for admin)
 // For now, let's keep all protected as they were, but add the new ones.

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { NeumorphicCard } from '../components/NeumorphicCard';
+import { API_URL } from '../config';
 
 export const UserHistoryView: React.FC = () => {
   const { token } = useAuth();
@@ -10,7 +11,7 @@ export const UserHistoryView: React.FC = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/users/history', {
+        const res = await fetch(`${API_URL}/users/history`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();

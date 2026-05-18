@@ -3,6 +3,7 @@ import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 import { useAuth } from '../context/AuthContext';
 import { Search, ChevronLeft, ChevronRight, Edit3, Trash2, Package, Tag, Plus } from 'lucide-react';
+import { API_URL } from '../config';
 
 interface Category { id: string; name: string; }
 interface DifficultyLevel { id: string; name: string; }
@@ -43,7 +44,7 @@ export const GameManagement: React.FC = () => {
 
   const fetchGames = async () => {
     try {
-      const resp = await fetch('http://localhost:3000/api/admin/games');
+      const resp = await fetch(`${API_URL}/admin/games`);
       const data = await resp.json();
       setGames(data);
     } catch (err) { console.error(err); }
@@ -52,8 +53,8 @@ export const GameManagement: React.FC = () => {
   const fetchMetadata = async () => {
     try {
       const [catResp, diffResp] = await Promise.all([
-        fetch('http://localhost:3000/api/admin/game-categories'),
-        fetch('http://localhost:3000/api/admin/game-difficulties')
+        fetch(`${API_URL}/admin/game-categories`),
+        fetch(`${API_URL}/admin/game-difficulties`)
       ]);
       setCategories(await catResp.json());
       setDifficulties(await diffResp.json());
@@ -99,8 +100,8 @@ export const GameManagement: React.FC = () => {
 
     const method = isEditing ? 'PUT' : 'POST';
     const url = isEditing
-      ? `http://localhost:3000/api/admin/games/${activeGame.id}`
-      : 'http://localhost:3000/api/admin/games';
+      ? `${API_URL}/admin/games/${activeGame.id}`
+      : `${API_URL}/admin/games`;
 
     try {
       const resp = await fetch(url, {
@@ -141,7 +142,7 @@ export const GameManagement: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!window.confirm('¿Eliminar este juego?')) return;
     try {
-      await fetch(`http://localhost:3000/api/admin/games/${id}`, {
+      await fetch(`${API_URL}/admin/games/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

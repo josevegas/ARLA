@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
+import { API_URL } from '../config';
 
 export const VerifyView: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export const VerifyView: React.FC = () => {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('http://localhost:3000/api/auth/verify', {
+      const res = await fetch(`${API_URL}/auth/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code })
@@ -43,7 +44,7 @@ export const VerifyView: React.FC = () => {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('http://localhost:3000/api/auth/resend-verification', {
+      const res = await fetch(`${API_URL}/auth/resend-verification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

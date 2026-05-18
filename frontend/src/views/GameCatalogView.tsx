@@ -6,6 +6,7 @@ import Select from 'react-select';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 import { Check, Gamepad2, ShoppingCart, Plus, Minus, Info, Users, Clock, Star } from 'lucide-react';
+import { API_URL } from '../config';
 
 interface Category { id: string; name: string; }
 interface DifficultyLevel { id: string; name: string; }
@@ -174,7 +175,7 @@ export const GameCatalogView: React.FC = () => {
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        const resp = await fetch('http://localhost:3000/api/admin/games');
+        const resp = await fetch(`${API_URL}/admin/games`);
         const data = await resp.json();
         setGames(data);
       } catch (err) {

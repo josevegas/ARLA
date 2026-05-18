@@ -3,6 +3,7 @@ import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 import { useAuth } from '../context/AuthContext';
 import { Layers, MapPin, Users, Edit3, Trash2, PlusCircle } from 'lucide-react';
+import { API_URL } from '../config';
 
 interface Table {
   id: string;
@@ -25,7 +26,7 @@ export const TableManagement: React.FC = () => {
 
   const fetchTables = async () => {
     try {
-      const resp = await fetch('http://localhost:3000/api/admin/tables', {
+      const resp = await fetch(`${API_URL}/admin/tables`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await resp.json();
@@ -41,8 +42,8 @@ export const TableManagement: React.FC = () => {
 
     const method = isEditing ? 'PUT' : 'POST';
     const url = isEditing
-      ? `http://localhost:3000/api/admin/tables/${activeTable.id}`
-      : 'http://localhost:3000/api/admin/tables';
+      ? `${API_URL}/admin/tables/${activeTable.id}`
+      : `${API_URL}/admin/tables`;
 
     try {
       const resp = await fetch(url, {
@@ -77,7 +78,7 @@ export const TableManagement: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!window.confirm('¿Eliminar esta mesa definitivamente?')) return;
     try {
-      await fetch(`http://localhost:3000/api/admin/tables/${id}`, {
+      await fetch(`${API_URL}/admin/tables/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 import { User, Trophy, Calendar, MapPin, Mail, Phone, Cake } from 'lucide-react';
+import { API_URL } from '../config';
 
 interface Visit {
   id: string;
@@ -28,7 +29,7 @@ export const ProfileView: React.FC = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/auth/profile', {
+        const res = await fetch(`${API_URL}/auth/profile`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();

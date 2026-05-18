@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../config';
 
 interface MenuItem {
   id: string;
@@ -30,7 +31,7 @@ export const MenuManagement: React.FC = () => {
 
   const fetchMenu = async () => {
     try {
-      const resp = await fetch('http://localhost:3000/api/admin/menu');
+      const resp = await fetch(`${API_URL}/admin/menu`);
       const data = await resp.json();
       setItems(data);
     } catch (err) {
@@ -59,8 +60,8 @@ export const MenuManagement: React.FC = () => {
 
     const method = isEditing ? 'PUT' : 'POST';
     const url = isEditing 
-      ? `http://localhost:3000/api/admin/menu/${activeItem.id}`
-      : 'http://localhost:3000/api/admin/menu';
+      ? `${API_URL}/admin/menu/${activeItem.id}`
+      : `${API_URL}/admin/menu`;
 
     try {
       const resp = await fetch(url, {
@@ -103,7 +104,7 @@ export const MenuManagement: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!window.confirm('¿Eliminar este ítem del menú?')) return;
     try {
-      await fetch(`http://localhost:3000/api/admin/menu/${id}`, {
+      await fetch(`${API_URL}/admin/menu/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

@@ -4,6 +4,7 @@ import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 import { useAuth } from '../context/AuthContext';
 import { Plus, X, Gamepad2, Users, Calendar, Clock, MapPin, CheckCircle2 } from 'lucide-react';
+import { API_URL } from '../config';
 
 interface ActiveReservation {
   id: string;
@@ -75,7 +76,7 @@ export const ReservationView: React.FC = () => {
   const fetchActiveReservation = async () => {
     if (!user || !token) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/reservations/active/${user.id}`, {
+      const res = await fetch(`${API_URL}/reservations/active/${user.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -110,7 +111,7 @@ export const ReservationView: React.FC = () => {
     if (e) e.preventDefault();
     if (!silent) setErrorDesc('');
     try {
-      const res = await fetch('http://localhost:3000/api/reservations/find-table', {
+      const res = await fetch(`${API_URL}/reservations/find-table`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -157,7 +158,7 @@ export const ReservationView: React.FC = () => {
         gameIds: selectedGames.map(g => g.id)
       };
 
-      const res = await fetch('http://localhost:3000/api/reservations', {
+      const res = await fetch(`${API_URL}/reservations`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

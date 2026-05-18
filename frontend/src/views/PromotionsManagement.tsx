@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../config';
 
 interface Promotion {
   id: string;
@@ -28,7 +29,7 @@ export const PromotionsManagement: React.FC = () => {
 
   const fetchPromotions = async () => {
     try {
-      const resp = await fetch('http://localhost:3000/api/admin/promotions');
+      const resp = await fetch(`${API_URL}/admin/promotions`);
       const data = await resp.json();
       setPromotions(data);
     } catch (err) {
@@ -57,8 +58,8 @@ export const PromotionsManagement: React.FC = () => {
 
     const method = isEditing ? 'PUT' : 'POST';
     const url = isEditing 
-      ? `http://localhost:3000/api/admin/promotions/${activePromo.id}`
-      : 'http://localhost:3000/api/admin/promotions';
+      ? `${API_URL}/admin/promotions/${activePromo.id}`
+      : `${API_URL}/admin/promotions`;
 
     try {
       const resp = await fetch(url, {
@@ -101,7 +102,7 @@ export const PromotionsManagement: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!window.confirm('¿Eliminar esta promoción?')) return;
     try {
-      await fetch(`http://localhost:3000/api/admin/promotions/${id}`, {
+      await fetch(`${API_URL}/admin/promotions/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

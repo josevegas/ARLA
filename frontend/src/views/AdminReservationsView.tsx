@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle, Calendar as CalendarIcon, Users, Filter, Hash } from 'lucide-react';
+import { API_URL } from '../config';
 
 interface TableWithReservations {
   id: string;
@@ -33,7 +34,7 @@ export const AdminReservationsView: React.FC = () => {
 
   const fetchReservations = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/admin/reservations', {
+      const res = await fetch(`${API_URL}/admin/reservations`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
@@ -51,7 +52,7 @@ export const AdminReservationsView: React.FC = () => {
 
   const handleUpdateStatus = async (resId: string, status: string) => {
      try {
-        const res = await fetch(`http://localhost:3000/api/admin/reservations/${resId}/status`, {
+        const res = await fetch(`${API_URL}/admin/reservations/${resId}/status`, {
            method: 'POST',
            headers: { 
              'Content-Type': 'application/json',

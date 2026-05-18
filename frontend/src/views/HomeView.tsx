@@ -4,6 +4,7 @@ import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
 import { useAuth } from '../context/AuthContext';
 import { ChevronLeft, ChevronRight, Gamepad2, Utensils, Calendar, User, ArrowRight } from 'lucide-react';
+import { API_URL } from '../config';
 
 interface Promotion {
   id: string;
@@ -34,7 +35,7 @@ export const HomeView: React.FC = () => {
 
   useEffect(() => {
     // Public promotions
-    fetch('http://localhost:3000/api/promociones')
+    fetch(`${API_URL}/promociones`)
       .then(res => res.json())
       .then(data => setPromos(data.filter((p: any) => p.active)))
       .catch(console.error);
@@ -46,7 +47,7 @@ export const HomeView: React.FC = () => {
       // I'll assume for now we list the primary one or I should update the endpoint to return plural.
       // Let's stick with the one we have or I'll update the backend to return plural if I can.
       // Actually, my backend getActiveReservation returns findFirst. I'll update it to findMany.
-      fetch(`http://localhost:3000/api/reservations/active/${user.id}`, {
+      fetch(`${API_URL}/reservations/active/${user.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       .then(res => res.json())

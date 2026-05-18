@@ -4,7 +4,7 @@ import { auth } from '../middlewares/auth';
 import { validate } from '../middlewares/validation';
 import { registerSchema, loginSchema } from '../schemas/authSchema';
 
-const router = Router();
+const router: Router = Router();
 
 router.post('/register', validate(registerSchema), register);
 router.post('/verify', verifyEmail);

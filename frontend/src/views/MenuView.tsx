@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NeumorphicCard } from '../components/NeumorphicCard';
 import { NeumorphicButton } from '../components/NeumorphicButton';
+import { API_URL } from '../config';
 
 interface MenuItem {
   id: string;
@@ -22,7 +23,7 @@ export const MenuView: React.FC = () => {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const resp = await fetch('http://localhost:3000/api/admin/menu');
+        const resp = await fetch(`${API_URL}/admin/menu`);
         const data = await resp.json();
         setItems(data);
       } catch (err) {
