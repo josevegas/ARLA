@@ -46,3 +46,14 @@ prisma/*.sqlite
 # Temporary files
 *.tmp
 *.temp
+
+# 1. Caché de administradores de paquetes (pnpm/npm)
+.npm/
+.pnpm-store/
+
+# 2. Archivos generados por Prisma Client (¡Muy importante para Railway!)
+**/node_modules/.cache/prisma/
+backend/node_modules/.cache/prisma/
+
+# 3. Archivos de sistema/SO adicionales
+Thumbs.db
